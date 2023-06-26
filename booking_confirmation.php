@@ -31,8 +31,15 @@ if (isset($_SESSION['bookingDetails'])) {
         // Calculate total payment
         $totalPayment = $noOfParticipant * $activityPrice;
 
-        // Add totalPayment to the bookingDetails array
-        $bookingDetails['totalPayment'] = $totalPayment;
+        // Check if the 'totalPayment' key exists in the $bookingDetails array before accessing it
+        if (isset($bookingDetails['totalPayment'])) {
+            // If it exists, update the value
+            $bookingDetails['totalPayment'] = $totalPayment;
+        } else {
+            // If it doesn't exist, add it to the array
+            $bookingDetails['totalPayment'] = $totalPayment;
+        }
+
 
         // Insert booking details into the database
         $sql = "INSERT INTO bookings (activityId, customerId, noOfParticipant, timeSlot, bookDate, comment,totalPayment)
@@ -59,8 +66,8 @@ if (isset($_SESSION['bookingDetails'])) {
 
         // Create the success message with the payment link
         // $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
-        $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php?activityId='.$activityId.'&customerId='.$customerId.'" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
- 
+        $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php?activityId=' . $activityId . '&customerId=' . $customerId . '" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
+
     }
 } else {
     header("Location: index.php"); // Redirect to the home page if booking details are not available
@@ -164,9 +171,12 @@ if (isset($_SESSION['bookingDetails'])) {
                 <p><strong>Komen:</strong>
                     <?php echo htmlentities($bookingDetails['comment']); ?>
                 </p>
+
+                <!-- Undefined array key "totalPayment" in C:\xampp\htdocs\SistemTempahanLamboSari3.0\booking_confirmation.php on line 175 -->
                 <p><strong>Jumlah bayaran (RM):</strong>
                     <?php echo htmlentities($bookingDetails['totalPayment']); ?>
                 </p>
+                
                 <form method="post">
                     <div class="form-group">
                         <button type="submit" name="submit" class="btn btn-primary">Submit</button>
