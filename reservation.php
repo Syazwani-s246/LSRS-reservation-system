@@ -48,53 +48,47 @@ include 'includes/config.php';
    <!-- </div> -->
    <!---activity---->
    <div class="container">
-   <div class="activity">
-      <h3>Terokai pelbagai aktiviti di Lambo Sari</h3>
-      <div class="row">
-         <?php
-         $sql = "SELECT * FROM activity";
+      <div class="activity">
+         <h3>Terokai pelbagai aktiviti di Lambo Sari</h3>
+         <?php $sql = "SELECT * FROM activity";
          $query = $dbh->prepare($sql);
          $query->execute();
          $results = $query->fetchAll(PDO::FETCH_OBJ);
          $cnt = 1;
          if ($query->rowCount() > 0) {
-            foreach ($results as $result) {
-               $activityId = $result->activityId;
-               $imageSql = "SELECT * FROM activity WHERE activityId = :activityId";
-               $imageQuery = $dbh->prepare($imageSql);
-               $imageQuery->bindParam(':activityId', $activityId, PDO::PARAM_INT);
-               $imageQuery->execute();
-               $images = $imageQuery->fetchAll(PDO::FETCH_OBJ);
-         ?>
-               <div class="col-md-4">
-                  <div class="img-btm">
-                     <div class="activity-image-wrapper">
-                        <img src="admin/activityImage/<?php echo htmlentities($result->activityImage); ?>" class="img-responsive activity-image" alt="">
-                     </div>
+            foreach ($results as $result) { ?>
+               <div class="img-btm">
+                  <div class="col-md-3 activity-left wow fadeInLeft animated" data-wow-delay=".3s">
+                     <img src="admin/activityImage/<?php echo htmlentities($result->activityImage); ?>" class="img-responsive"
+                        alt="">
                   </div>
-                  <div class="col-md-12">
-                     <h4><?php echo htmlentities($result->activityName); ?></h4>
-                     <p><?php echo htmlentities($result->activityDetails); ?></p>
-                     <h5>RM <?php echo htmlentities($result->activityPrice); ?></h5>
-                     <?php if (isset($_SESSION['login'])) { ?>
-                        <a href="activity-details.php?actId=<?php echo htmlentities($result->activityId); ?>" class="view">Tempah sekarang</a>
-                     <?php } else { ?>
-                        <a href="javascript:void(0);" onclick="alert('Sila log masuk dahulu untuk buat tempahan');" class="view">Tempah sekarang</a>
-                     <?php } ?>
+                  <div class="col-md-6 activity-midle wow fadeInUp animated" data-wow-delay=".3s">
+                     <h4>Nama aktiviti:
+                        <?php echo htmlentities($result->activityName); ?>
+                     </h4>
+                     <p><b>Maklumat</b>
+                        <?php echo htmlentities($result->activityDetails); ?>
+                     </p>
                   </div>
-               </div>
-         <?php
-               $cnt++;
-            }
-         }
-         ?>
-      </div>
-   </div>
-   <div class="clearfix"></div>
-</div>
 
-      <div class="clearfix"></div>
-   </div>
+
+                  <div class="col-md-3 activity-right wow fadeInRight animated" data-wow-delay=".3s">
+                     <h5>RM
+                        <?php echo htmlentities($result->activityPrice); ?>
+                     </h5>
+                     <a href="<?php if (isset($_SESSION['login'])) { ?>
+      activity-details.php?actId=<?php echo htmlentities($result->activityId); ?>" <?php } else { ?>
+                           javascript:void(0);" onclick="alert('Sila log masuk dahulu untuk buat tempahan');
+      <?php } ?>
+      " class="view">Tempah sekarang</a>
+                  </div>
+
+
+
+                  <div class="clearfix"></div>
+               </div>
+            <?php }
+         } ?>
    <?php include 'includes/footer.php'; ?>
    <!-- signup -->
    <?php include 'includes/signup.php'; ?>

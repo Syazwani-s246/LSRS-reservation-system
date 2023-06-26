@@ -103,11 +103,11 @@ if (strlen($_SESSION['login']) == 0) {
 						style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">Change Password</h3>
 					<form name="chngpwd" method="post" onSubmit="return valid();">
 						<?php if ($error) { ?>
-							<div class="errorWrap"><strong>ERROR</strong>:
+							<div class="errorWrap"><strong>RALAT</strong>:
 								<?php echo htmlentities($error); ?>
 							</div>
 						<?php } else if ($msg) { ?>
-								<div class="succWrap"><strong>SUCCESS</strong>:
+								<div class="succWrap"><strong>BERJAYA</strong>:
 								<?php echo htmlentities($msg); ?>
 								</div>
 						<?php } ?>

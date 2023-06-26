@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(E_ALL);
 include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
    header('location:index.php');
@@ -10,56 +10,46 @@ if (strlen($_SESSION['alogin']) == 0) {
       $aname = $_POST['activityName'];
       $aprice = $_POST['activityPrice'];
       $adetails = $_POST['activityDetails'];
-
-      $array = array();
-
-      // define the key "activityImage"
-      $array['activityImage'] = 'value';
-
-      // access the key "activityImage"
-      $activityImage = $array['activityImage'];
-
-
-
+      $minPax = $_POST['minPax'];
+      $duration = $_POST['duration'];
 
       $aimage = $_FILES["activityImage"]["name"];
-      move_uploaded_file($_FILES["activityImage"]["tmp_name"], "activityImage/" . $_FILES["activityImage"]["name"]);
-      $sql = "INSERT INTO activity
-   (activityName,activityPrice,activityDetails,activityImage) 
-   VALUES(:aname,:aprice,:adetails,:aimage)";
-      $query = $dbh->prepare($sql);
-      $query->bindParam(':aname', $aname, PDO::PARAM_STR);
-      $query->bindParam(':aprice', $aprice, PDO::PARAM_STR);
-      $query->bindParam(':adetails', $adetails, PDO::PARAM_STR);
-      $query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
-      $query->execute();
-      $lastInsertId = $dbh->lastInsertId();
+      $imageFileType = strtolower(pathinfo($aimage, PATHINFO_EXTENSION));
 
-      if ($lastInsertId) {
-         // $startTime = $_POST['startTime'];
-         // $endTime = $_POST['endTime'];
+      // Define the allowed file formats
+      $allowedFormats = array('jpg', 'jpeg', 'png');
 
-         // foreach($start_time as $key=>$st) {
-         // 	$et = $end_time[$key];
-         // 	$sql = "INSERT INTO activitytimes (activityId, startTime, endTime) VALUES (:activityId, :st, :et)";
-         // 	$query = $dbh->prepare($sql);
-         // 	$query->bindParam(':activityId', $lastInsertId, PDO::PARAM_INT);
-         // 	$query->bindParam(':st', $st, PDO::PARAM_STR);
-         // 	$query->bindParam(':et', $et, PDO::PARAM_STR);
-         // 	$query->execute();
-         // }
-         $msg = "Activiti berjaya dicipta!";
+      // Check if the uploaded file format is allowed
+      if (in_array($imageFileType, $allowedFormats)) {
+         move_uploaded_file($_FILES["activityImage"]["tmp_name"], "activityImage/" . $_FILES["activityImage"]["name"]);
+
+         $sql = "INSERT INTO activity (activityName, activityPrice, activityDetails, minPax, duration, activityImage) VALUES (:aname, :aprice, :adetails, :minPax, :duration, :aimage)";
+         $query = $dbh->prepare($sql);
+         $query->bindParam(':aname', $aname, PDO::PARAM_STR);
+         $query->bindParam(':aprice', $aprice, PDO::PARAM_STR);
+         $query->bindParam(':adetails', $adetails, PDO::PARAM_STR);
+         $query->bindParam(':minPax', $minPax, PDO::PARAM_INT);
+         $query->bindParam(':duration', $duration, PDO::PARAM_INT);
+         $query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
+         $query->execute();
+         $lastInsertId = $dbh->lastInsertId();
+
+         if ($lastInsertId) {
+            $msg = "Aktiviti berjaya ditambah!";
+         } else {
+            $error = "Ralat. Sila cuba lagi.";
+         }
       } else {
-         $error = "Ralat. Sila cuba lagi.";
+         $error = "Sila muat naik imej dalam format JPG, JPEG, atau PNG sahaja.";
       }
    }
+?>
 
-   ?>
    <!DOCTYPE HTML>
    <html>
 
    <head>
-      <title>LSRS | Cipta aktiviti</title>
+      <title>LSRS | Tambah aktiviti</title>
 
 
       <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); 
@@ -105,14 +95,14 @@ if (strlen($_SESSION['alogin']) == 0) {
             </div>
             <!--heder end here-->
             <ol class="breadcrumb">
-               <li class="breadcrumb-item"><a href="index.php">Utama</a><i class="fa fa-angle-right"></i>Cipta aktiviti
+               <li class="breadcrumb-item"><a href="index.php">Utama</a><i class="fa fa-angle-right"></i>Tambah aktiviti
                </li>
             </ol>
             <!--grid-->
             <div class="grid-form">
                <!---->
                <div class="grid-form1">
-                  <h3>Cipta aktiviti baharu</h3>
+                  <h3>Tambah aktiviti baharu</h3>
                   <?php if ($error) { ?>
                      <div class="errorWrap"><strong>RALAT</strong>:
                         <?php echo htmlentities($error); ?>
@@ -176,7 +166,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                            </div> -->
                            <div class="row">
                               <div class="col-sm-8 col-sm-offset-2">
-                                 <button type="submit" name="submit" class="btn-primary btn">Cipta</button>
+                                 <button type="submit" name="submit" class="btn-primary btn">Tambah</button>
                                  <button type="reset" class="btn-inverse btn">Mula semula</button>
                               </div>
                            </div>

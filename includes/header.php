@@ -6,7 +6,7 @@
 			<li class="hm"><a href="index.html"><i class="fa fa-home"></i></a></li>
 			<li class="prnt"><a href="profile.php">Profil saya</a></li>
 				<li class="prnt"><a href="change-password.php">Tukar kata laluan</a></li>
-			<li class="prnt"><a href="tour-history.php">Sejarah tempahan</a></li>
+			<li class="prnt"><a href="book-history.php">Sejarah tempahan</a></li>
 			<!-- <li class="prnt"><a href="issuetickets.php">Issue Tickets</a></li> -->
 		</ul>
 		<ul class="tp-hd-rgt wow fadeInRight animated" data-wow-delay=".5s"> 

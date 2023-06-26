@@ -59,7 +59,7 @@ if (strlen($_SESSION['alogin']) == 0) {
    <html>
 
    <head>
-      <title>LSRS | Cipta aktiviti</title>
+      <title>LSRS | Tambah aktiviti</title>
 
 
       <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); 
@@ -105,14 +105,14 @@ if (strlen($_SESSION['alogin']) == 0) {
             </div>
             <!--heder end here-->
             <ol class="breadcrumb">
-               <li class="breadcrumb-item"><a href="index.php">Utama</a><i class="fa fa-angle-right"></i>Cipta aktiviti
+               <li class="breadcrumb-item"><a href="index.php">Utama</a><i class="fa fa-angle-right"></i>Tambah aktiviti
                </li>
             </ol>
             <!--grid-->
             <div class="grid-form">
                <!---->
                <div class="grid-form1">
-                  <h3>Cipta aktiviti baharu</h3>
+                  <h3>Tambah aktiviti baharu</h3>
                   <?php if ($error) { ?>
                      <div class="errorWrap"><strong>RALAT</strong>:
                         <?php echo htmlentities($error); ?>
@@ -162,7 +162,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                            </div> -->
                            <div class="row">
                               <div class="col-sm-8 col-sm-offset-2">
-                                 <button type="submit" name="submit" class="btn-primary btn">Cipta</button>
+                                 <button type="submit" name="submit" class="btn-primary btn">Tambah</button>
                                  <button type="reset" class="btn-inverse btn">Mula semula</button>
                               </div>
                            </div>

@@ -96,10 +96,10 @@ if (strlen($_SESSION['alogin']) == 0) {
                   <h3>Tambah slot masa</h3>
                   <?php if ($error) { ?>
                   <div class="errorWrap">
-                     <strong>ERROR</strong>:<?php echo htmlentities($error); ?>
+                     <strong>RALAT</strong>:<?php echo htmlentities($error); ?>
                   </div>
                   <?php } else if ($msg) { ?>
-                  <div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div>
+                  <div class="succWrap"><strong>BERJAYA</strong>:<?php echo htmlentities($msg); ?> </div>
                   <?php } ?>
                   <div class="tab-content">
                   <div class="tab-pane active" id="horizontal-form">

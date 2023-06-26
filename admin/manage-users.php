@@ -109,19 +109,19 @@ if (strlen($_SESSION['alogin']) == 0) {
 													<?php echo htmlentities($cnt); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->FullName); ?>
+													<?php echo htmlentities($result->fullName); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->MobileNumber); ?>
+													<?php echo htmlentities($result->mobileNumber); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->EmailId); ?>
+													<?php echo htmlentities($result->emailId); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->RegDate); ?>
+													<?php echo htmlentities($result->regDate); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->UpdationDate); ?>
+													<?php echo htmlentities($result->updationDate); ?>
 												</td>
 											</tr>
 											<?php $cnt = $cnt + 1;

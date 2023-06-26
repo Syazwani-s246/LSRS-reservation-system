@@ -5,36 +5,21 @@ include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
 	header('location:reservation.php');
 } else {
-	// code for cancel
-	if (isset($_REQUEST['bkid'])) {
-		$bid = intval($_GET['bkid']);
+	// Code for cancelling a booking
+	if (isset($_GET['bookingId'])) {
+		$bookingId = intval($_GET['bookingId']);
 		$status = 2;
-		$cancelby = 'Admin';
-		$sql = "UPDATE bookings SET status=:status,CancelledBy=:cancelby WHERE  bookingId=:bid";
+		$cancelBy = 'Admin';
+
+		$sql = "UPDATE bookings SET status = :status, CancelledBy = :cancelBy WHERE bookingId = :bookingId";
 		$query = $dbh->prepare($sql);
-		$query->bindParam(':status', $status, PDO::PARAM_STR);
-		$query->bindParam(':cancelby', $cancelby, PDO::PARAM_STR);
-		$query->bindParam(':bid', $bid, PDO::PARAM_STR);
+		$query->bindParam(':status', $status, PDO::PARAM_INT);
+		$query->bindParam(':cancelBy', $cancelBy, PDO::PARAM_STR);
+		$query->bindParam(':bookingId', $bookingId, PDO::PARAM_INT);
 		$query->execute();
 
-		$msg = "Booking Cancelled successfully";
+		$msg = "Tempahan telah dibatalkan.";
 	}
-
-
-	if (isset($_REQUEST['bckid'])) {
-		$bcid = intval($_GET['bckid']);
-		$status = 1;
-		$cancelby = 'Admin';
-		$sql = "UPDATE bookings SET status=:status WHERE bookingId=:bcid";
-		$query = $dbh->prepare($sql);
-		$query->bindParam(':status', $status, PDO::PARAM_STR);
-		$query->bindParam(':bcid', $bcid, PDO::PARAM_STR);
-		$query->execute();
-		$msg = "Booking Confirm successfully";
-	}
-
-
-
 
 	?>
 	<!DOCTYPE HTML>
@@ -117,7 +102,8 @@ if (strlen($_SESSION['alogin']) == 0) {
 				</div>
 				<!--heder end here-->
 				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="dashboard.php">Utama</a><i class="fa fa-angle-right"></i>Urus tempahan</li>
+					<li class="breadcrumb-item"><a href="dashboard.php">Utama</a><i class="fa fa-angle-right"></i>Urus
+						tempahan</li>
 				</ol>
 				<div class="agile-grids">
 					<!-- tables -->
@@ -144,34 +130,34 @@ if (strlen($_SESSION['alogin']) == 0) {
 										<th>Tarikh</th>
 										<th>Slot masa</th>
 										<th>Bilangan peserta</th>
-										<th>Catatan pelanggan</th>
+										<!-- <th>Catatan pelanggan</th> -->
 										<th>Status </th>
-										<th>Action </th>
+
 									</tr>
 								</thead>
 								<tbody>
-									<?php $sql = "SELECT * FROM bookings";
+									<?php
+									$sql = "SELECT b.bookingId, b.timeSlot, b.bookDate, b.noOfParticipant, b.comment, b.status, c.fullName, c.emailId
+							FROM bookings b
+							JOIN customers c ON b.customerId = c.id";
 									$query = $dbh->prepare($sql);
 									$query->execute();
 									$results = $query->fetchAll(PDO::FETCH_OBJ);
 									$cnt = 1;
 									if ($query->rowCount() > 0) {
-										foreach ($results as $result) { ?>
+										foreach ($results as $result) {
+											$status = ($result->status == 1) ? 'Telah dibayar' : 'Belum dibayar';
+											?>
 											<tr>
-												<td>#BK-
-													<?php echo htmlentities($result->bookingId); ?>
-												</td>
+												<td><a
+														href="booking-details.php?bookingId=<?php echo htmlentities($result->bookingId); ?>">#BK-<?php echo htmlentities($result->bookingId); ?></a></td>
 												<td>
 													<?php echo htmlentities($result->fullName); ?>
 												</td>
-												<!-- <td><?php echo htmlentities($result->mnumber); ?></td> -->
 												<td>
-													<?php echo htmlentities($result->userEmail); ?>
+													<?php echo htmlentities($result->emailId); ?>
 												</td>
-												<!-- <td><a href="update-package.php?activityId=<?php echo htmlentities($result->activityId); ?>">
-												<?php echo htmlentities($result->pckname); ?></a></td>
-												<td> -->
-													<td>
+												<td>
 													<?php echo htmlentities($result->bookDate); ?>
 												</td>
 												<td>
@@ -180,40 +166,21 @@ if (strlen($_SESSION['alogin']) == 0) {
 												<td>
 													<?php echo htmlentities($result->noOfParticipant); ?>
 												</td>
+												
 												<td>
-													<?php echo htmlentities($result->comment); ?>
-												</td>
-												<td>
-													<?php if ($result->status == 0) {
-														echo "Pending";
-													}
-													if ($result->status == 1) {
-														echo "Confirmed";
-													}
-													if ($result->status == 2 and $result->cancelby == 'Admin') {
-														echo "Canceled by you at " . $result->upddate;
-													}
-													if ($result->status == 2 and $result->cancelby == 'User') {
-														echo "Canceled by User at " . $result->upddate;
-
-													}
-													?>
+													<?php echo $status; ?>
 												</td>
 
-												<?php if ($result->status == 2) {
-													?>
-													<td>Cancelled</td>
-												<?php } else { ?>
-													<td><a href="manage-bookings.php?bcid=<?php echo htmlentities($result->bookid); ?>"
-															onclick="return confirm('Do you really want to cancel booking')">Cancel</a>
-														/ <a href="manage-bookings.php?bcid=<?php echo htmlentities($result->bookid); ?>"
-															onclick="return confirm('booking has been confirm')">Confirm</a></td>
-												<?php } ?>
 
 											</tr>
-											<?php $cnt = $cnt + 1;
+
+											<?php $cnt++;
 										}
-									} ?>
+									} else { ?>
+										<tr>
+											<td colspan="9">Tiada tempahan yang dijumpai.</td>
+										</tr>
+									<?php } ?>
 								</tbody>
 							</table>
 						</div>
@@ -222,18 +189,8 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 					</div>
 					<!-- script-for sticky-nav -->
-					<script>
-						$(document).ready(function () {
-							var navoffeset = $(".header-main").offset().top;
-							$(window).scroll(function () {
-								var scrollpos = $(window).scrollTop();
-								if (scrollpos >= navoffeset) {
-									$(".header-main").addClass("fixed");
-								} else {
-									$(".header-main").removeClass("fixed");
-								}
-							});
-
+					<script>						$(document).ready(function () {
+							var navoffeset = $(".header-main").offset().top; $(window).scroll(function () { var scrollpos = $(window).scrollTop(); if (scrollpos >= navoffeset) { $(".header-main").addClass("fixed"); } else { $(".header-main").removeClass("fixed"); } });
 						});
 					</script>
 					<!-- /script-for sticky-nav -->
@@ -252,21 +209,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 			<?php include('includes/sidebarmenu.php'); ?>
 			<div class="clearfix"></div>
 		</div>
-		<script>
-			var toggle = true;
-
+		<script>			var toggle = true;
 			$(".sidebar-icon").click(function () {
-				if (toggle) {
-					$(".page-container").addClass("sidebar-collapsed").removeClass("sidebar-collapsed-back");
-					$("#menu span").css({ "position": "absolute" });
-				}
-				else {
-					$(".page-container").removeClass("sidebar-collapsed").addClass("sidebar-collapsed-back");
-					setTimeout(function () {
-						$("#menu span").css({ "position": "relative" });
-					}, 400);
-				}
-
+				if (toggle) { $(".page-container").addClass("sidebar-collapsed").removeClass("sidebar-collapsed-back"); $("#menu span").css({ "position": "absolute" }); } else { $(".page-container").removeClass("sidebar-collapsed").addClass("sidebar-collapsed-back"); setTimeout(function () { $("#menu span").css({ "position": "relative" }); }, 400); }
 				toggle = !toggle;
 			});
 		</script>

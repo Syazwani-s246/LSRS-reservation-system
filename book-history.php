@@ -7,50 +7,44 @@ if (strlen($_SESSION['login']) == 0) {
 	header('location:reservation.php');
 	exit();
 } else {
-	if (isset($_REQUEST['bkid'])) {
-		$bid = intval($_GET['bkid']);
+	if (isset($_REQUEST['bookingId'])) {
+		$bookingId = intval($_GET['bookingId']);
 		$email = $_SESSION['login'];
-		$sql = "SELECT bookingDate FROM bookings WHERE UserEmail=:email and bookingId=:bid";
+
+		// SQL query to get the data
+		$sql = "SELECT b.bookingId, a.activityName, b.noOfParticipant, b.timeSlot, b.bookDate, b.comment 
+				FROM bookings b 
+				INNER JOIN activity a ON b.activityId = a.activityId
+				WHERE b.UserEmail = :email AND b.bookingId = :bookingId";
 		$query = $dbh->prepare($sql);
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
-		$query->bindParam(':bid', $bid, PDO::PARAM_STR);
+		$query->bindParam(':bookingId', $bookingId, PDO::PARAM_INT);
 		$query->execute();
 		$results = $query->fetchAll(PDO::FETCH_OBJ);
+
 		if ($query->rowCount() > 0) {
 			foreach ($results as $result) {
-				$fdate = $result->bookingDate;
+				$bookingId = $result->bookingId;
+				$activityName = $result->activityName;
+				$noOfParticipant = $result->noOfParticipant;
+				$timeSlot = $result->timeSlot;
+				$bookDate = $result->bookDate;
+				$comment = $result->comment;
 
-				$a = explode("/", $fdate);
-				$val = array_reverse($a);
-				$mydate = implode("/", $val);
-				$cdate = date('Y/m/d');
-				$date1 = date_create("$cdate");
-				$date2 = date_create("$fdate");
-				$diff = date_diff($date1, $date2);
-				$df = $diff->format("%a");
-				if ($df > 1) {
-					$status = 2;
-					$cancelby = 'u';
-					$sql = "UPDATE bookings SET status=:status, CancelledBy=:cancelby WHERE UserEmail=:email AND bookingId=:bid";
-					$query = $dbh->prepare($sql);
-					$query->bindParam(':status', $status, PDO::PARAM_STR);
-					$query->bindParam(':cancelby', $cancelby, PDO::PARAM_STR);
-					$query->bindParam(':email', $email, PDO::PARAM_STR);
-					$query->bindParam(':bid', $bid, PDO::PARAM_STR);
-					$query->execute();
-
-					$msg = "Booking cancelled successfully";
-				} else {
-					$error = "You can't cancel the booking before 24 hours";
-				}
+				// Do something with the retrieved data
+				// ...
 			}
+		} else {
+			// Handle if no results found for the given booking ID
+			$error = "Invalid booking ID";
 		}
 	}
 
-?>
-<!DOCTYPE HTML>
-<html>
-<head>
+	?>
+	<!DOCTYPE HTML>
+	<html>
+
+	<head>
 		<title>Sejarah tempahan</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -110,68 +104,76 @@ if (strlen($_SESSION['login']) == 0) {
 			<div class="privacy">
 				<div class="container">
 					<h3 class="wow fadeInDown animated animated" data-wow-delay=".5s"
-						style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">My Tour History</h3>
+						style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">Sejarah tempahan
+						saya</h3>
 					<form name="chngpwd" method="post" onSubmit="return valid();">
 						<?php if ($error) { ?>
-							<div class="errorWrap"><strong>ERROR</strong>:
+							<div class="errorWrap"><strong>RALAT</strong>:
 								<?php echo htmlentities($error); ?>
 							</div>
 						<?php } else if ($msg) { ?>
-								<div class="succWrap"><strong>SUCCESS</strong>:
+								<div class="succWrap"><strong>BERJAYA</strong>:
 								<?php echo htmlentities($msg); ?>
 								</div>
 						<?php } ?>
 						<p>
-	
 
-
-
-
-
-				<table border="1" width="100%">
-					<tr align="center">
-						<th>#</th>
-						<th>Booking Id</th>
-						<th>Nama aktiviti</th>
-						<th>Tarikh</th>
-						<th>Masa</th>
-						<th>Komen</th>
-						<th>Status</th>
-						<th>Tindakan</th>
-					</tr>
-					<?php
-					$userEmail = $_SESSION['login'];
-					$sql = "SELECT * FROM bookings WHERE UserEmail=:EmailId";
-					$query = $dbh->prepare($sql);
-					$query->bindParam(':EmailId', $userEmail, PDO::PARAM_STR);
-					$query->execute();
-					$results = $query->fetchAll(PDO::FETCH_OBJ);
-					$cnt = 1;
-					if ($query->rowCount() > 0) {
-						foreach ($results as $result) {
-							?>
+						<table border="1" width="100%">
 							<tr align="center">
-								<td><?php echo htmlentities($cnt); ?></td>
-								<td>#BK<?php echo htmlentities($result->bookingId); ?></td>
-								<td><a href=activity-details.php?activityId=<?php echo htmlentities($result->activityId); ?>"><?php echo htmlentities($result->activityName); ?></a></td>
-								<td><?php echo htmlentities($result->bookingDate); ?></td>
+								<th>#</th>
+								<th>Booking Id</th>
+								<th>Nama aktiviti</th>
+								<th>Tarikh</th>
+								<th>Masa</th>
+								<th>Catatan</th>
+								<th>Status</th>
+								<th>Tindakan</th>
 							</tr>
 							<?php
-							$cnt++;
-						}
-					}
-					?>
-				</table>
-			</form>
-			<!-- - /privacy -->
-	
-			<!-- signup -->
-			<?php include('includes/signup.php'); ?>
-			<!-- //signu -->
-			<!-- signin -->
-			<?php include('includes/signin.php'); ?>
-			<!-- //signin -->
-			<!-- write us -->
-			<?php include('includes/write-us.php'); ?>
-		</body>
-	</html><?php } ?>
+							$userEmail = $_SESSION['login'];
+							$sql = "SELECT b.bookingId, a.activityName, b.noOfParticipant, b.timeSlot, b.bookDate, b.comment, b.status 
+									FROM bookings b 
+									INNER JOIN activity a ON b.activityId = a.activityId
+									WHERE b.UserEmail = :EmailId";
+							$query = $dbh->prepare($sql);
+							$query->bindParam(':EmailId', $userEmail, PDO::PARAM_STR);
+							$query->execute();
+							$results = $query->fetchAll(PDO::FETCH_OBJ);
+							$cnt = 1;
+							if ($query->rowCount() > 0) {
+								foreach ($results as $result) {
+									?>
+									<tr align="center">
+										<td>
+											<?php echo htmlentities($cnt); ?>
+										</td>
+										<td>#BK<?php echo htmlentities($result->bookingId); ?></td>
+										<td><a href="activity-details.php?actId=<?php echo htmlentities($result->activityId); ?>"><?php echo htmlentities($result->activityName); ?></a></td>
+										<td><?php echo htmlentities($result->bookDate); ?></td>
+										<td><?php echo htmlentities($result->timeSlot); ?></td>
+										<td><?php echo htmlentities($result->comment); ?></td>
+										<td><?php echo htmlentities($result->status); ?></td>
+										<td>
+											<!-- Add appropriate actions here -->
+										</td>
+									</tr>
+									<?php
+									$cnt++;
+								}
+							}
+							?>
+						</table>
+					</form>
+					<!-- - /privacy -->
+
+					<!-- signup -->
+					<?php include('includes/signup.php'); ?>
+					<!-- //signu -->
+					<!-- signin -->
+					<?php include('includes/signin.php'); ?>
+					<!-- //signin -->
+					<!-- write us -->
+					<?php include('includes/write-us.php'); ?>
+	</body>
+</html>
+<?php } ?>

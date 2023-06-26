@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="row">
             <div class="col-sm-8 col-sm-offset-2">
-                <button type="submit" name="submit" class="btn-primary btn">Cipta</button>
+                <button type="submit" name="submit" class="btn-primary btn">Tambah</button>
                 <button type="reset" class="btn-inverse btn">Mula semula</button>
             </div>
         </div>

@@ -1,50 +1,76 @@
 <?php
 session_start();
-// error_reporting(0);
+error_reporting(0);
 
-error_reporting(E_ALL);
+// error_reporting(E_ALL);
 
 include 'includes/config.php';
 if (strlen($_SESSION['alogin']) == 0) {
-    header('location:reservation.php');
+	header('location:reservation.php');
 } else {
 
-    $activityId = intval($_GET['activityId']);
+	$activityId = intval($_GET['activityId']);
     if (isset($_POST['submit'])) {
         $aname = $_POST['activityName'];
         $aprice = $_POST['activityPrice'];
         $adetails = $_POST['activityDetails'];
+        $minPax = $_POST['minPax'];
+        $duration = $_POST['duration'];
 
         // Check if there was a file uploaded
         if (!empty($_FILES['activityImage']['name'])) {
             // Set the target directory for the uploaded file
-            $target_dir = "uploads/";
+            $target_dir = "activityImage/";
             // Get the file name
             $aimage = basename($_FILES["activityImage"]["name"]);
+            // Get the file extension
+            $imageFileType = strtolower(pathinfo($aimage, PATHINFO_EXTENSION));
+            // Define the allowed file formats
+            $allowedFormats = array('jpg', 'jpeg', 'png');
+
+            // Check if the file format is allowed
+            if (!in_array($imageFileType, $allowedFormats)) {
+                $error = "Sila muat naik imej dalam format JPG, JPEG, atau PNG sahaja.";
+                // You can handle the error as per your requirement, e.g., display an error message to the user
+                echo $error;
+                exit; // Stop execution further if an error occurs
+            }
+
             // Create the full path
             $target_file = $target_dir . $aimage;
             // Move the uploaded file to the target directory
             move_uploaded_file($_FILES["activityImage"]["tmp_name"], $target_file);
+        } else {
+            // If no file was uploaded, retain the existing image
+            $sqlImage = "SELECT activityImage FROM activity WHERE activityId = :activityId";
+            $queryImage = $dbh->prepare($sqlImage);
+            $queryImage->bindParam(':activityId', $activityId, PDO::PARAM_INT);
+            $queryImage->execute();
+            $rowImage = $queryImage->fetch(PDO::FETCH_ASSOC);
+            $aimage = $rowImage['activityImage'];
         }
 
-        $sql = "UPDATE activity SET activityName=:aname, activityPrice=:aprice, activityDetails=:adetails WHERE activityId=:activityId";
+        $sql = "UPDATE activity SET activityName=:aname, activityPrice=:aprice, activityDetails=:adetails, minPax=:minPax, duration=:duration, activityImage=:aimage WHERE activityId=:activityId";
         $query = $dbh->prepare($sql);
 
         $query->bindParam(':aname', $aname, PDO::PARAM_STR);
         $query->bindParam(':aprice', $aprice, PDO::PARAM_STR);
         $query->bindParam(':adetails', $adetails, PDO::PARAM_STR);
+        $query->bindParam(':minPax', $minPax, PDO::PARAM_INT);
+        $query->bindParam(':duration', $duration, PDO::PARAM_INT);
         $query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
-        $query->bindParam(':activityId', $activityId, PDO::PARAM_STR);
+        $query->bindParam(':activityId', $activityId, PDO::PARAM_INT);
 
-        // $query->execute();
-        // $msg = "Aktiviti berjaya dikemaskini";
+        $query->execute();
+        $msg = "Aktiviti berjaya dikemaskini";
 
-		echo "<script>
-			alert('Aktiviti berjaya dikemaskini');
-			window.location.href='manage-activity.php';
-		  </script>";
-    }
-    ?>
+        echo "<script>
+            alert('Aktiviti berjaya dikemaskini');
+            window.location.href='manage-activity.php';
+          </script>";
+	}
+
+	?>
 	<!DOCTYPE HTML>
 	<html>
 
@@ -106,19 +132,19 @@ if (strlen($_SESSION['alogin']) == 0) {
 					<!---->
 					<div class="grid-form1">
 						<h3>Kemaskini maklumat aktiviti</h3>
-					
+
 						<div class="tab-content">
 							<div class="tab-pane active" id="horizontal-form">
 								<?php
-        $activityId = intval($_GET['activityId']);
-        $sql = "SELECT * from activity where activityId=:activityId";
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':activityId', $activityId, PDO::PARAM_STR);
-        $query->execute();
-        $results = $query->fetchAll(PDO::FETCH_OBJ);
-        $cnt = 1;
-        if ($query->rowCount() > 0) {
-            foreach ($results as $result) { ?>
+								$activityId = intval($_GET['activityId']);
+								$sql = "SELECT * from activity where activityId=:activityId";
+								$query = $dbh->prepare($sql);
+								$query->bindParam(':activityId', $activityId, PDO::PARAM_STR);
+								$query->execute();
+								$results = $query->fetchAll(PDO::FETCH_OBJ);
+								$cnt = 1;
+								if ($query->rowCount() > 0) {
+									foreach ($results as $result) { ?>
 										<form class="form-horizontal" name="activity" method="post" enctype="multipart/form-data">
 											<div class="form-group">
 												<label for="focusedinput" class="col-sm-2 control-label">Nama aktiviti</label>
@@ -128,8 +154,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 														value="<?php echo htmlentities($result->activityName); ?>" required>
 												</div>
 											</div>
-																						<div class="form-group">
-												<label for="focusedinput" class="col-sm-2 control-label">Bayaran aktiviti untuk seorang (RM)</label>
+											<div class="form-group">
+												<label for="focusedinput" class="col-sm-2 control-label">Bayaran aktiviti untuk
+													seorang (RM)</label>
 												<div class="col-sm-8">
 													<input type="number" class="form-control1" name="activityPrice"
 														id="activityPrice" placeholder=" contoh : 12"
@@ -137,18 +164,20 @@ if (strlen($_SESSION['alogin']) == 0) {
 												</div>
 											</div>
 											<div class="form-group">
-												<label for="focusedinput" class="col-sm-2 control-label">Bilangan peserta minimum</label>
+												<label for="focusedinput" class="col-sm-2 control-label">Bilangan peserta
+													minimum</label>
 												<div class="col-sm-8">
-													<input type="number" class="form-control1" name="minPax"
-														id="minPax" placeholder=" contoh : 12"
+													<input type="number" class="form-control1" name="minPax" id="minPax"
+														placeholder=" contoh : 12"
 														value="<?php echo htmlentities($result->minPax); ?>" required>
 												</div>
 											</div>
 											<div class="form-group">
-												<label for="focusedinput" class="col-sm-2 control-label">Tempoh masa aktiviti (jam) </label>
+												<label for="focusedinput" class="col-sm-2 control-label">Tempoh masa aktiviti (jam)
+												</label>
 												<div class="col-sm-8">
-													<input type="number" class="form-control1" name="duration"
-														id="duration" placeholder=" contoh : 2"
+													<input type="number" class="form-control1" name="duration" id="duration"
+														placeholder=" contoh : 2"
 														value="<?php echo htmlentities($result->duration); ?>" required>
 												</div>
 											</div>
@@ -157,8 +186,8 @@ if (strlen($_SESSION['alogin']) == 0) {
 												<div class="col-sm-8">
 													<textarea class="form-control" rows="5" cols="50" name="activityDetails"
 														id="activityDetails" placeholder="Maklumat aktiviti"
-														value="<?php echo htmlentities($result->activityDetails); ?>"
-														required></textarea>
+														required><?php echo htmlentities($result->activityDetails); ?></textarea>
+
 												</div>
 											</div>
 											<div class="form-group">
@@ -166,19 +195,22 @@ if (strlen($_SESSION['alogin']) == 0) {
 												<div class="col-sm-8">
 													<img src="activityImage/<?php echo htmlentities($result->activityImage); ?>"
 														width="200">&nbsp;&nbsp;&nbsp;<a
-														href="change-image.php?aimage=<?php echo htmlentities($result->activityId); ?>">Tukar gambar</a>
+														href="change-image.php?aimage=<?php echo htmlentities($result->activityId); ?>">Tukar
+														gambar</a>
+
 
 												</div>
 											</div>
 											<div class="form-group">
-												<label for="focusedinput" class="col-sm-2 control-label">Tarikh kemaskini terakhir</label>
+												<label for="focusedinput" class="col-sm-2 control-label">Tarikh kemaskini
+													terakhir</label>
 												<div class="col-sm-8">
 													<?php echo htmlentities($result->updationDate); ?>
 												</div>
 											</div>
 										<?php }
-        }
-        ?>
+								}
+								?>
 									<div class="row">
 										<div class="col-sm-8 col-sm-offset-2">
 											<button type="submit" name="submit" class="btn-primary btn">Kemaskini</button>
@@ -249,5 +281,5 @@ if (strlen($_SESSION['alogin']) == 0) {
 	</body>
 
 	</html>
-<?php
+	<?php
 } ?>

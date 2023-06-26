@@ -2,54 +2,102 @@
 session_start();
 include('includes/config.php');
 
-if (isset($_POST['submit2'])) {
+if (isset($_GET['actId'])) {
     $activityId = intval($_GET['actId']);
     $userEmail = $_SESSION['login'];
-
-    // Get user's full name from customers table
-    $sql = "SELECT fullName FROM customers WHERE emailId = :userEmail";
-
+    $sql = "SELECT id,fullName FROM customers WHERE emailId = :userEmail";
     $query = $dbh->prepare($sql);
     $query->bindParam(':userEmail', $userEmail, PDO::PARAM_STR);
     $query->execute();
     $result = $query->fetch(PDO::FETCH_ASSOC);
-
+    // $result['fullName'] dapatkan column 'fullName' guna cara array
     if (isset($result['fullName'])) {
         $bookingName = $result['fullName'];
     } else {
         $bookingName = ''; // Set default value if fullName doesn't exist
     }
 
-    $noOfParticipant = $_POST['noOfParticipant'];
+    if (isset($result['id'])) {
+        $customerId = $result['id'];
+    } else {
+        $customerId = ''; // Set default value if fullName doesn't exist
+    }
+
+    $sql = "SELECT minPax, duration,activityPrice FROM activity WHERE activityId = :activityId";
+    $query = $dbh->prepare($sql);
+    $query->bindParam(':activityId', $activityId, PDO::PARAM_INT);
+    $query->execute();
+    $activityResult = $query->fetch(PDO::FETCH_ASSOC);
+    // var_dump($activityResult); //to test minPax,duration and activityPrice
+    if (isset($activityResult['minPax'])) {
+        $minPax = $activityResult['minPax'];
+    } else {
+        $minPax = 1; // Set default value if minPax doesn't exist
+    }
+
+    if (isset($activityResult['duration'])) {
+        $duration = $activityResult['duration'];
+    } else {
+        $duration = 1; // Set default value if duration doesn't exist
+    }
+}
+
+if (isset($_POST['submit2'])) {
+    // Retrieve activityId, customerId, and other form data
+    $activityId = intval($_POST['actId']);
+    $customerId = $_POST['customerId'];
+    $userEmail = $_SESSION['login'];
     $bookDate = $_POST['bookDate'];
-    $timeSlotId = $_POST['timeSlot'];
     $comment = $_POST['comment'];
+    $timeSlot = $_POST['selectedTimeSlot'];
+
+    //instead of minPax, get noOfParticipant, the name=" " indicate what you retrieve from
+    $noOfParticipant = $_POST['noOfParticipant'];
+
+    
 
     $status = 0;
 
-    
-    $sql = "INSERT INTO bookings (activityId, customerId,noOfParticipant, timeSlot, bookDate, comment)
-        VALUES (:activityId, :customerId, :noOfParticipant, :timeSlot :bookDate, :comment)";
-
-
+    // Check if the selected timeslot and date combination already exists
+    $sql = "SELECT COUNT(*) AS count FROM bookings WHERE activityId = :activityId AND timeSlot = :timeSlot AND bookDate = :bookDate";
     $query = $dbh->prepare($sql);
-    $query->bindParam(':activityId', $activityId, PDO::PARAM_STR);
-    $query->bindParam(':customerId', $userEmail, PDO::PARAM_STR);  $query->bindParam(':timeSlotId', $timeSlotId, PDO::PARAM_INT);
-    $query->bindParam(':noOfParticipant', $noOfParticipant, PDO::PARAM_INT);
+    $query->bindParam(':activityId', $activityId, PDO::PARAM_INT);
     $query->bindParam(':timeSlot', $timeSlot, PDO::PARAM_STR);
-  
     $query->bindParam(':bookDate', $bookDate, PDO::PARAM_STR);
-    $query->bindParam(':comment', $comment, PDO::PARAM_STR);
     $query->execute();
-    $lastInsertId = $dbh->lastInsertId();
+    $result = $query->fetch(PDO::FETCH_ASSOC);
 
-    if ($lastInsertId) {
-        $msg = "Booked Successfully";
-    } else {
-        $error = "Something went wrong. Please try again";
+    if ($result['count'] > 0) {
+        echo "<script>alert('Tarikh dan slot masa tidak tersedia. Sila pilih masa dan tarikh lain.');</script>";
+    }  else {
+        // Store booking details in session
+        $_SESSION['bookingDetails'] = array(
+            'activityId' => $activityId,
+            'customerId' => $customerId,
+            'noOfParticipant' => $noOfParticipant,
+            'timeSlot' => $timeSlot,
+            'bookDate' => $bookDate,
+            'comment' => $comment
+
+        );
+
+
+
+        // get value for this id to bring id to booking_confirmation
+        $_SESSION['activityId'] = $activityId;
+        $_SESSION['customerId'] = $customerId;
+
+        // Redirect to booking confirmation page
+        header("Location: booking_confirmation.php");
+        exit();
     }
 }
+
+
+
+
 ?>
+
 <!DOCTYPE HTML>
 <html>
 
@@ -80,7 +128,27 @@ if (isset($_POST['submit2'])) {
     </script>
     <script src="js/jquery-ui.js"></script>
     <script>
+
+        var duration = <?php echo $duration; ?>;
+
+
         $(document).ready(function () {
+
+            // initial render of time slots
+            var timeSlots = generateTimeSlots(duration);
+            // Clear previous buttons and add new time slots as buttons
+            var timeSlotsContainer = $('#timeSlotsContainer');
+            timeSlotsContainer.empty();
+            timeSlots.forEach(function (timeSlot, index) {
+                var radioOption = $(`
+                    <div>
+                    <input type='radio' id='timeslot-${index}' name='selectedTimeSlot' value='${timeSlot}'>
+                    <label for='timeslot-${index}'>${timeSlot}</label>
+                    </div>
+                `);
+                timeSlotsContainer.append(radioOption);
+            });
+
             $("#datepicker").datepicker({
                 minDate: 0,
                 dateFormat: 'yy-mm-dd',
@@ -88,31 +156,44 @@ if (isset($_POST['submit2'])) {
                     var currentDate = new Date();
                     if (date < currentDate) {
                         return [false, 'ui-datepicker-past'];
-                    }
-                    else {
+                    } else {
                         return [true, ''];
                     }
                 }
             });
-            $(".time-slot").click(function () {
-                event.preventDefault();
-                $(".time-slot").removeClass("selected");
-                $(this).addClass("selected");
-                $("#time").val($(this).data("time"));
-            });
+            
+
+            // Function to generate time slots
+            function generateTimeSlots(duration) {
+                var startTime = new Date();
+                startTime.setHours(9, 0, 0); // Set the starting time (e.g., 9:00 AM)
+
+                var endTime = new Date();
+                endTime.setHours(18, 0, 0); // Set the ending time (e.g., 6:00 PM)
+
+                var timeSlots = [];
+                var currentTime = startTime;
+
+                while (currentTime <= endTime) {
+                    var timeSlot = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    timeSlots.push(timeSlot);
+                    // Add the interval to the current time
+                    currentTime.setHours(currentTime.getHours() + duration);
+                }
+                return timeSlots;
+            }
+
         });
-
-
     </script>
+
+
+
     <style>
         .ui-datepicker-past {
             color: gray;
         }
 
-        .time-slot.selected {
-            background-color: blue;
-        }
-
+      
         .errorWrap {
             padding: 10px;
             margin: 0 0 20px 0;
@@ -130,28 +211,36 @@ if (isset($_POST['submit2'])) {
             -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .1);
             box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .1);
         }
+
+
+        .selected-time-slot {
+            background-color: grey;
+        }
+
+        .fully-booked-date {
+            background-color: lightgrey;
+        }
+    </style>
+
     </style>
 </head>
 
 <body>
     <!-- top-header -->
     <?php include('includes/header.php'); ?>
-    <div class="banner-3">
-        <div class="container">
-            <h1 class="wow zoomIn animated animated" data-wow-delay=".5s"
-                style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;"> Maklumat Aktiviti</h1>
-        </div>
-    </div>
-    <!--- /banner ---->
-    <!--- selectactivity ---->
+    <h1>
+        <center>Maklumat Aktiviti</center>
+    </h1>
+
+    <!--- selected-activity ---->
     <div class="selectactivity">
         <div class="container">
             <?php if ($error) { ?>
-                <div class="errorWrap"><strong>ERROR</strong>:
+                <div class="errorWrap"><strong>RALAT</strong>:
                     <?php echo htmlentities($error); ?>
                 </div>
             <?php } else if ($msg) { ?>
-                    <div class="succWrap"><strong>SUCCESS</strong>:
+                    <div class="succWrap"><strong>BERJAYA</strong>:
                     <?php echo htmlentities($msg); ?>
                     </div>
             <?php } ?>
@@ -178,37 +267,46 @@ if (isset($_POST['submit2'])) {
                                 <p class="dow">#A-
                                     <?php echo htmlentities($result->activityId); ?>
                                 </p>
-                                <p><b>Harga</b>
-                                    <?php echo htmlentities($result->activityPrice); ?>
-                                </p>
+                                <h3><b>Harga</b>
+                                    RM <?php echo htmlentities($result->activityPrice); ?>
+                </h3>
+                                <h3><b>Tempoh masa aktiviti</b>
+                                    <?php echo htmlentities($result->duration); ?> jam
+                </h3>
                                 <h3>Info</h3>
                                 <p style="padding-top: 1%">
                                     <?php echo htmlentities($result->activityDetails); ?>
                                 </p>
                                 <div class="ban-bottom">
                                     <div class="bnr-right">
+                                        <input type="hidden" name="actId" value="<?php echo $activityId; ?>">
+                                        <input type="hidden" name="customerId" value="<?php echo $customerId; ?>">
                                         <label class="inputLabel">Nama pelanggan</label>
                                         <input type="text" id="bookingName" name="bookingName"
                                             value="<?php echo $bookingName; ?>" readonly>
                                         <br>
                                         <label class="inputLabel">Bilangan semua peserta</label>
                                         <input type="number" id="noOfParticipant" name="noOfParticipant"
-                                            min="<?php echo $minPax; ?>" required>
+                                            min="<?php echo $minPax; ?>" value="<?php echo $minPax; ?>" required>
                                         <br>
                                         <label for="date">Tarikh:</label>
                                         <input type="text" id="datepicker" name="bookDate" placeholder="dd-mm-yyyy" required>
                                         <br>
-                                        <label for="time">Slot masa:</label>
-                                        <input type="hidden" id="timeSlot" name="timeSlot"
-                                            value="<?php echo $activityTimeId; ?>">
-                                        <input type="text" value="<?php echo $timeSlotName; ?>" readonly>
+
+
+                                        <div class="form-group">
+                                            <label>Pilih slot masa<span style="color:red;">*</span></label>
+                                            <div id="timeSlotsContainer"></div>
+                                        </div>
+
+
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
-                                <div class="grand">
+                                <!-- <div class="grand">
                                     <p>Jumlah deposit</p>
                                     <h3>...</h3>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -217,22 +315,22 @@ if (isset($_POST['submit2'])) {
                                 data-wow-delay="500ms"
                                 style="visibility: visible; animation-duration: 1200ms; animation-delay: 500ms; animation-name: fadeInUp; margin-top: -70px">
                                 <ul>
-                                    <li class="spe">
-                                        <label class="inputLabel">Komen</label>
-                                        <input class="special" type="text" name="comment">
-                                    </li>
+
+                                    <label class="inputLabel">Catatan (jika ada)</label>
+                                    <input type="text" name="comment">
+
                                     <?php if ($_SESSION['login']) { ?>
-                                        <li class="spe" align="center">
-                                            <button type="submit" name="submit2" class="btn-primary btn">Book</button>
-                                        </li>
-                                    <?php } else { ?>
-                                        <li class="sigi" align="center" style="margin-top: 1%">
+                                        <ul class="spe" align="center">
+                                            <button type="submit" name="submit2" class="btn-primary btn">Tempah</button>
+
+                                        <?php } else { ?>
+                                            <!-- <li class="sigi" align="center" style="margin-top: 1%">
                                             <a href="#" data-toggle="modal" data-target="#myModal4" class="btn-primary btn">
                                                 Tempah</a>
-                                        </li>
-                                    <?php } ?>
-                                    <div class="clearfix"></div>
-                                </ul>
+                                        </li> -->
+                                        <?php } ?>
+                                        <div class="clearfix"></div>
+                                    </ul>
                             </div>
                         </div>
                     </form>

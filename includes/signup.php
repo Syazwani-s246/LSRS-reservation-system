@@ -60,7 +60,7 @@ if (isset($_POST['submit'])) {
 											</div> -->
 							<div class="login-right">
 								<form name="signup" method="post">
-									<h3>Cipta akaun</h3>
+									<h3>Tambah akaun</h3>
 
 
 									<input type="text" value="" placeholder="Full Name" name="fname" autocomplete="on"

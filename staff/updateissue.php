@@ -54,10 +54,10 @@
                <tr>
                   <td colspan="2" ">
                      <?php if($error){?>
-                     <div class="errorWrap"><strong>ERROR</strong>:<?php echo htmlentities($error); ?> </div>
+                     <div class="errorWrap"><strong>RALAT</strong>:<?php echo htmlentities($error); ?> </div>
                      <?php } 
                         else if($msg){?>
-                     <div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div>
+                     <div class="succWrap"><strong>BERJAYA</strong>:<?php echo htmlentities($msg); ?> </div>
                      <?php }?>
                   </td>
                </tr>

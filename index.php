@@ -419,7 +419,7 @@
 		<h2 class="text">Hubungi Kami</h2>
 		<div class="row">
 			<div class="col-sm-5">
-				<h3><strong>Pencipta Laman Web</strong></h3>
+				<h3><strong>Pembangun Laman Web</strong></h3>
 				<p>Norsyazwani binti Mohd Subri</p>
 				<p><span class="glyphicon glyphicon-map-marker"></span> Universiti Malaysia Terengganu, Kuala
 					Terengganu, Malaysia</p>

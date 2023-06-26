@@ -6,8 +6,8 @@ if (strlen($_SESSION['alogin']) == 0) {
 	header('location:reservation.php');
 } else {
 	// code for cancel
-	if (isset($_REQUEST['bkid'])) {
-		$bid = intval($_GET['bkid']);
+	if (isset($_REQUEST['bookingId'])) {
+		$bid = intval($_GET['bookingId']);
 		$status = 2;
 		$cancelby = 'Admin';
 		$sql = "UPDATE bookings SET status=:status,CancelledBy=:cancelby WHERE  bookingId=:bid";
@@ -21,14 +21,14 @@ if (strlen($_SESSION['alogin']) == 0) {
 	}
 
 
-	if (isset($_REQUEST['bckid'])) {
-		$bcid = intval($_GET['bckid']);
+	if (isset($_REQUEST['bookingId'])) {
+		$bookingId = intval($_GET['bookingId']);
 		$status = 1;
 		$cancelby = 'Admin';
-		$sql = "UPDATE bookings SET status=:status WHERE bookingId=:bcid";
+		$sql = "UPDATE bookings SET status=:status WHERE bookingId=:bookingId";
 		$query = $dbh->prepare($sql);
 		$query->bindParam(':status', $status, PDO::PARAM_STR);
-		$query->bindParam(':bcid', $bcid, PDO::PARAM_STR);
+		$query->bindParam(':bookingId', $bookingId, PDO::PARAM_STR);
 		$query->execute();
 		$msg = "Booking Confirm successfully";
 	}
@@ -204,9 +204,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 													?>
 													<td>Cancelled</td>
 												<?php } else { ?>
-													<td><a href="manage-bookings.php?bcid=<?php echo htmlentities($result->bookid); ?>"
+													<td><a href="manage-bookings.php?bookingId=<?php echo htmlentities($result->bookid); ?>"
 															onclick="return confirm('Do you really want to cancel booking')">Cancel</a>
-														/ <a href="manage-bookings.php?bcid=<?php echo htmlentities($result->bookid); ?>"
+														/ <a href="manage-bookings.php?bookingId=<?php echo htmlentities($result->bookid); ?>"
 															onclick="return confirm('booking has been confirm')">Confirm</a></td>
 												<?php } ?>
 
