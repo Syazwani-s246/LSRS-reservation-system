@@ -34,13 +34,13 @@ if (isset($_SESSION['bookingDetails'])) {
         $customerQuery->execute();
         $customerRow = $customerQuery->fetch(PDO::FETCH_ASSOC);
         $fullName = $customerRow ? $customerRow['fullName'] : "Unknown Customer";
-    
-         // Update payment details in the database
-         $updatePaymentSql = "UPDATE bookings SET paymentId = :paymentId WHERE bookingId = :bookingId";
-         $updatePaymentQuery = $dbh->prepare($updatePaymentSql);
-         $updatePaymentQuery->bindParam(':paymentId', $bookingDetails['paymentId'], PDO::PARAM_INT);
-         $updatePaymentQuery->bindParam(':bookingId', $bookingDetails['bookingId'], PDO::PARAM_INT);
-         $updatePaymentQuery->execute();
+
+        // Update payment details in the database
+        $updatePaymentSql = "UPDATE bookings SET paymentId = :paymentId WHERE bookingId = :bookingId";
+        $updatePaymentQuery = $dbh->prepare($updatePaymentSql);
+        $updatePaymentQuery->bindParam(':paymentId', $bookingDetails['paymentId'], PDO::PARAM_INT);
+        $updatePaymentQuery->bindParam(':bookingId', $bookingDetails['bookingId'], PDO::PARAM_INT);
+        $updatePaymentQuery->execute();
     } else {
         header("Location: index.php"); // Redirect to the home page if booking details are not available
         exit();
@@ -67,13 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $insertPaymentQuery->bindParam(':paymentReceipt', $paymentReceipt, PDO::PARAM_STR);
         $insertPaymentQuery->execute();
 
-        echo "Form submitted successfully."; // for debugging
-       
+        header("Location: receipt.php"); // Redirect to receipt.php after successful payment
+        exit();
     }
 }
 ?>
-
-
 
 <!DOCTYPE HTML>
 <html>
@@ -100,27 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h3 class="tittle">Pembayaran Tempahan</h3>
             <div class="well">
                 <h4>Butiran Tempahan</h4>
-                <p><strong>Aktiviti:</strong>
-                    <?php echo htmlentities($activityName); ?>
-                </p>
-                <p><strong>Nama Pelanggan:</strong>
-                    <?php echo htmlentities($fullName); ?>
-                </p>
-                <p><strong>Bilangan Peserta:</strong>
-                    <?php echo htmlentities($noOfParticipant); ?>
-                </p>
-                <p><strong>Slot Masa:</strong>
-                    <?php echo htmlentities($timeSlot); ?>
-                </p>
-                <p><strong>Tarikh Tempahan:</strong>
-                    <?php echo htmlentities($bookDate); ?>
-                </p>
-                <p><strong>Komen:</strong>
-                    <?php echo htmlentities($comment); ?>
-                </p>
-                <p><strong>Jumlah Bayaran (RM):</strong>
-                    <?php echo htmlentities($totalPayment); ?>
-                </p>
+                <p><strong>Aktiviti:</strong> <?php echo htmlentities($activityName); ?></p>
+                <p><strong>Nama Pelanggan:</strong> <?php echo htmlentities($fullName); ?></p>
+                <p><strong>Bilangan Peserta:</strong> <?php echo htmlentities($noOfParticipant); ?></p>
+                <p><strong>Slot Masa:</strong> <?php echo htmlentities($timeSlot); ?></p>
+                <p><strong>Tarikh Tempahan:</strong> <?php echo htmlentities($bookDate); ?></p>
+                <p><strong>Komen:</strong> <?php echo htmlentities($comment); ?></p>
+                <p><strong>Jumlah Bayaran (RM):</strong> <?php echo htmlentities($totalPayment); ?></p>
 
                 <form method="post" enctype="multipart/form-data">
                     <div class="form-group">
@@ -131,18 +115,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" name="upload" class="btn btn-primary">Hantar</button>
                     </div>
                 </form>
-                </form>
             </div>
         </div>
-    </div>
-    </div>
     </div>
     <!--- /privacy ---->
     <!--- footer-top ---->
     <?php include('includes/footer.php'); ?>
     <!--- /footer-top ---->
     <!--- footer-bottom ---->
-
     <!--- /footer-bottom ---->
 </body>
 

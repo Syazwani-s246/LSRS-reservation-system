@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('includes/config.php');
+error_reporting(0);
 
 if (isset($_GET['actId'])) {
     $activityId = intval($_GET['actId']);

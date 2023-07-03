@@ -68,6 +68,10 @@ if (isset($_SESSION['bookingDetails'])) {
         // $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
         $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php?activityId=' . $activityId . '&customerId=' . $customerId . '" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
 
+         // Redirect to payment.php
+        // echo "<script>window.location.href = 'payment.php?activityId=$activityId&customerId=$customerId';</script>";
+        // exit();
+
     }
 } else {
     header("Location: index.php"); // Redirect to the home page if booking details are not available
