@@ -42,7 +42,8 @@ include 'includes/config.php';
    <?php include 'includes/header.php'; ?>
    <div class="container">
       <h1 class="wow zoomIn animated animated" data-wow-delay=".5s"
-         style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;"> Melestarikan Warisan secara Digital
+         style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;"> Melestarikan Warisan secara
+         Digital
       </h1>
    </div>
    <!-- </div> -->
@@ -63,13 +64,20 @@ include 'includes/config.php';
                         alt="">
                   </div>
                   <div class="col-md-6 activity-midle wow fadeInUp animated" data-wow-delay=".3s">
-                     <h4>Nama aktiviti:
+                     <h4>
                         <?php echo htmlentities($result->activityName); ?>
                      </h4>
-                     <p><b>Maklumat</b>
-                        <?php echo htmlentities($result->activityDetails); ?>
+
+                     <?php echo htmlentities($result->activityDetails); ?>
+                     </p>
+                     <p><b>Tempoh masa aktiviti</b> :
+                        <?php echo htmlentities($result->duration); ?> jam
+                     </p>
+                     <p><b>Bilangan peserta minimum</b> :
+                        <?php echo htmlentities($result->minPax); ?> orang
                      </p>
                   </div>
+
 
 
                   <div class="col-md-3 activity-right wow fadeInRight animated" data-wow-delay=".3s">
@@ -78,7 +86,7 @@ include 'includes/config.php';
                      </h5>
                      <a href="<?php if (isset($_SESSION['login'])) { ?>
       activity-details.php?actId=<?php echo htmlentities($result->activityId); ?>" <?php } else { ?>
-                           javascript:void(0);" onclick="alert('Sila log masuk dahulu untuk buat tempahan');
+                  javascript:void(0);" onclick="alert('Sila log masuk dahulu untuk buat tempahan');
       <?php } ?>
       " class="view">Tempah sekarang</a>
                   </div>
@@ -89,16 +97,14 @@ include 'includes/config.php';
                </div>
             <?php }
          } ?>
-   <?php include 'includes/footer.php'; ?>
-   <!-- signup -->
-   <?php include 'includes/signup.php'; ?>
-   <!-- //signu -->
-   <!-- signin -->
-   <?php include 'includes/signin.php'; ?>
-   <!-- //signin -->
-   <!-- write us -->
-   <?php include 'includes/write-us.php'; ?>
-   <!-- //write us -->
+         <?php include 'includes/footer.php'; ?>
+         <!-- signup -->
+         <?php include 'includes/signup.php'; ?>
+
+         <!-- signin -->
+         <?php include 'includes/signin.php'; ?>
+
+
 </body>
 
 </html>

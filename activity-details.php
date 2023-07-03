@@ -51,13 +51,31 @@ if (isset($_POST['submit2'])) {
     $bookDate = $_POST['bookDate'];
     $comment = $_POST['comment'];
     $timeSlot = $_POST['selectedTimeSlot'];
+    $activityPrice = $_POST['activityPrice'];
 
     //instead of minPax, get noOfParticipant, the name=" " indicate what you retrieve from
     $noOfParticipant = $_POST['noOfParticipant'];
 
-    
+    // Calculate total payment
+    $activityPrice = $activityResult['activityPrice'];
+    $totalPayment = $noOfParticipant * $activityPrice;
+
+
+
+
+
 
     $status = 0;
+
+    // Fetch already booked time slots for the selected date
+    $sql = "SELECT timeSlot FROM bookings WHERE bookDate = :bookDate";
+    $query = $dbh->prepare($sql);
+    //$query->bindParam(':activityId', $activityId, PDO::PARAM_INT);
+    $query->bindParam(':bookDate', $bookDate, PDO::PARAM_STR);
+    $query->execute();
+    $bookedTimeSlots = $query->fetchAll(PDO::FETCH_COLUMN);
+
+
 
     // Check if the selected timeslot and date combination already exists
     $sql = "SELECT COUNT(*) AS count FROM bookings WHERE activityId = :activityId AND timeSlot = :timeSlot AND bookDate = :bookDate";
@@ -69,8 +87,8 @@ if (isset($_POST['submit2'])) {
     $result = $query->fetch(PDO::FETCH_ASSOC);
 
     if ($result['count'] > 0) {
-        echo "<script>alert('Tarikh dan slot masa tidak tersedia. Sila pilih masa dan tarikh lain.');</script>";
-    }  else {
+        echo "<script>alert('Tarikh ATAU slot masa tidak tersedia. Sila pilih masa ATAU tarikh lain.');</script>";
+    } else {
         // Store booking details in session
         $_SESSION['bookingDetails'] = array(
             'activityId' => $activityId,
@@ -78,11 +96,11 @@ if (isset($_POST['submit2'])) {
             'noOfParticipant' => $noOfParticipant,
             'timeSlot' => $timeSlot,
             'bookDate' => $bookDate,
-            'comment' => $comment
+            'comment' => $comment,
+            'activityPrice' => $activityPrice,
+            'totalPayment' => $noOfParticipant * $activityPrice,
 
         );
-
-
 
         // get value for this id to bring id to booking_confirmation
         $_SESSION['activityId'] = $activityId;
@@ -93,8 +111,6 @@ if (isset($_POST['submit2'])) {
         exit();
     }
 }
-
-
 
 
 ?>
@@ -124,35 +140,18 @@ if (isset($_POST['submit2'])) {
     <link href="css/animate.css" rel="stylesheet" type="text/css" media="all">
     <script src="js/wow.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.css" />
-    <script>
-        new WOW().init();
-    </script>
     <script src="js/jquery-ui.js"></script>
     <script>
+        new WOW().init();
 
         var duration = <?php echo $duration; ?>;
 
 
         $(document).ready(function () {
 
-            // initial render of time slots
-            var timeSlots = generateTimeSlots(duration);
-            // Clear previous buttons and add new time slots as buttons
-            var timeSlotsContainer = $('#timeSlotsContainer');
-            timeSlotsContainer.empty();
-            timeSlots.forEach(function (timeSlot, index) {
-                var radioOption = $(`
-                    <div>
-                    <input type='radio' id='timeslot-${index}' name='selectedTimeSlot' value='${timeSlot}'>
-                    <label for='timeslot-${index}'>${timeSlot}</label>
-                    </div>
-                `);
-                timeSlotsContainer.append(radioOption);
-            });
-
             $("#datepicker").datepicker({
                 minDate: 0,
-                dateFormat: 'yy-mm-dd',
+                dateFormat: 'dd-mm-yy',
                 beforeShowDay: function (date) {
                     var currentDate = new Date();
                     if (date < currentDate) {
@@ -160,29 +159,76 @@ if (isset($_POST['submit2'])) {
                     } else {
                         return [true, ''];
                     }
-                }
-            });
+                },
             
 
-            // Function to generate time slots
-            function generateTimeSlots(duration) {
-                var startTime = new Date();
-                startTime.setHours(9, 0, 0); // Set the starting time (e.g., 9:00 AM)
+            onSelect: function (dateText, inst) {
+                var selectedDate = new Date(dateText);
+                var selectedDateString = dateText;
+                var bookedTimeSlots = <?php echo json_encode($bookedTimeSlots); ?>;
+                var timeSlots = generateTimeSlots(duration, selectedDate, bookedTimeSlots);
 
-                var endTime = new Date();
-                endTime.setHours(18, 0, 0); // Set the ending time (e.g., 6:00 PM)
-
-                var timeSlots = [];
-                var currentTime = startTime;
-
-                while (currentTime <= endTime) {
-                    var timeSlot = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    timeSlots.push(timeSlot);
-                    // Add the interval to the current time
-                    currentTime.setHours(currentTime.getHours() + duration);
-                }
-                return timeSlots;
+                // Clear previous buttons and add new time slots as buttons
+                var timeSlotsContainer = $('#timeSlotsContainer');
+                timeSlotsContainer.empty();
+                timeSlots.forEach(function (timeSlot, index) {
+                    var radioOption = $(`
+                    <div>
+                    <input type='radio' id='timeslot-${index}' name='selectedTimeSlot' value='${timeSlot}'>
+                    <label for='timeslot-${index}'>${timeSlot}</label>
+                    </div>
+                `);
+                    timeSlotsContainer.append(radioOption);
+                });
             }
+        });
+
+        // initial render of time slots
+        var timeSlots = generateTimeSlots(duration);
+        // Clear previous buttons and add new time slots as buttons
+        var timeSlotsContainer = $('#timeSlotsContainer');
+        timeSlotsContainer.empty();
+        timeSlots.forEach(function (timeSlot, index) {
+            var radioOption = $(`
+                    <div>
+                    <input type='radio' id='timeslot-${index}' name='selectedTimeSlot' value='${timeSlot}'>
+                    <label for='timeslot-${index}'>${timeSlot}</label>
+                    </div>
+                `);
+            timeSlotsContainer.append(radioOption);
+        });
+
+
+
+
+        // Function to generate time slots
+        function generateTimeSlots(duration) {
+            var startTime = new Date();
+            startTime.setHours(9, 0, 0); // Set the starting time (e.g., 9:00 AM)
+
+            var endTime = new Date();
+            endTime.setHours(18, 0, 0); // Set the ending time (e.g., 6:00 PM)
+
+            var timeSlots = [];
+            var currentTime = startTime;
+
+            while (currentTime <= endTime) {
+                var timeSlot = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                timeSlots.push(timeSlot);
+                // Add the interval to the current time
+                currentTime.setHours(currentTime.getHours() + duration);
+            }
+            return timeSlots;
+        }
+
+        // Disable booked time slots for the selected date
+        var bookedTimeSlots = <?php echo json_encode($bookedTimeSlots); ?>;
+        bookedTimeSlots.forEach(function (bookedTimeSlot) {
+            $('input[value="' + bookedTimeSlot + '"]').prop('disabled', true).parent().addClass('fully-booked-time');
+        });
+
+
+
 
         });
     </script>
@@ -194,7 +240,7 @@ if (isset($_POST['submit2'])) {
             color: gray;
         }
 
-      
+
         .errorWrap {
             padding: 10px;
             margin: 0 0 20px 0;
@@ -211,6 +257,17 @@ if (isset($_POST['submit2'])) {
             border-left: 4px solid #5cb85c;
             -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .1);
             box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .1);
+        }
+
+        .fully-booked-time {
+            background-color: lightgray;
+            /* Set the background color for disabled time slots */
+            cursor: not-allowed;
+            /* Change the cursor to indicate that the time slots are not selectable */
+            opacity: 0.5;
+            /* Adjust the opacity to visually indicate that the time slots are disabled */
+            pointer-events: none;
+            /* Disable pointer events on the disabled time slots */
         }
 
 
@@ -244,7 +301,7 @@ if (isset($_POST['submit2'])) {
                     <div class="succWrap"><strong>BERJAYA</strong>:
                     <?php echo htmlentities($msg); ?>
                     </div>
-            <?php } ?>
+                <?php } ?>
             <?php
             $activityId = intval($_GET['actId']);
             $sql = "SELECT * from activity where activityId=:activityId";
@@ -268,13 +325,15 @@ if (isset($_POST['submit2'])) {
                                 <p class="dow">#A-
                                     <?php echo htmlentities($result->activityId); ?>
                                 </p>
-                                <h3><b>Harga</b>
-                                    RM <?php echo htmlentities($result->activityPrice); ?>
-                </h3>
-                                <h3><b>Tempoh masa aktiviti</b>
+                                <p><b>Harga</b> :
+                                    RM
+                                    <?php echo htmlentities($result->activityPrice); ?>
+                                </p>
+                                <p><b>Tempoh masa aktiviti</b> :
+
                                     <?php echo htmlentities($result->duration); ?> jam
-                </h3>
-                                <h3>Info</h3>
+                                </p>
+                                <p><b>Info</b></p>
                                 <p style="padding-top: 1%">
                                     <?php echo htmlentities($result->activityDetails); ?>
                                 </p>
@@ -349,8 +408,7 @@ if (isset($_POST['submit2'])) {
     <!-- signin -->
     <?php include('includes/signin.php'); ?>
     <!-- //signin -->
-    <!-- write us -->
-    <?php include('includes/write-us.php'); ?>
+
 </body>
 
 </html>

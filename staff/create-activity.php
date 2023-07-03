@@ -10,51 +10,41 @@ if (strlen($_SESSION['alogin']) == 0) {
       $aname = $_POST['activityName'];
       $aprice = $_POST['activityPrice'];
       $adetails = $_POST['activityDetails'];
-
-      $array = array();
-
-      // define the key "activityImage"
-      $array['activityImage'] = 'value';
-
-      // access the key "activityImage"
-      $activityImage = $array['activityImage'];
-
-
-
+      $minPax = $_POST['minPax'];
+      $duration = $_POST['duration'];
 
       $aimage = $_FILES["activityImage"]["name"];
-      move_uploaded_file($_FILES["activityImage"]["tmp_name"], "activityImage/" . $_FILES["activityImage"]["name"]);
-      $sql = "INSERT INTO activity
-   (activityName,activityPrice,activityDetails,activityImage) 
-   VALUES(:aname,:aprice,:adetails,:aimage)";
-      $query = $dbh->prepare($sql);
-      $query->bindParam(':aname', $aname, PDO::PARAM_STR);
-      $query->bindParam(':aprice', $aprice, PDO::PARAM_STR);
-      $query->bindParam(':adetails', $adetails, PDO::PARAM_STR);
-      $query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
-      $query->execute();
-      $lastInsertId = $dbh->lastInsertId();
+      $imageFileType = strtolower(pathinfo($aimage, PATHINFO_EXTENSION));
 
-      if ($lastInsertId) {
-         // $startTime = $_POST['startTime'];
-         // $endTime = $_POST['endTime'];
+      // Define the allowed file formats
+      $allowedFormats = array('jpg', 'jpeg', 'png');
 
-         // foreach($start_time as $key=>$st) {
-         // 	$et = $end_time[$key];
-         // 	$sql = "INSERT INTO activitytimes (activityId, startTime, endTime) VALUES (:activityId, :st, :et)";
-         // 	$query = $dbh->prepare($sql);
-         // 	$query->bindParam(':activityId', $lastInsertId, PDO::PARAM_INT);
-         // 	$query->bindParam(':st', $st, PDO::PARAM_STR);
-         // 	$query->bindParam(':et', $et, PDO::PARAM_STR);
-         // 	$query->execute();
-         // }
-         $msg = "Activiti berjaya dicipta!";
+      // Check if the uploaded file format is allowed
+      if (in_array($imageFileType, $allowedFormats)) {
+         move_uploaded_file($_FILES["activityImage"]["tmp_name"], "activityImage/" . $_FILES["activityImage"]["name"]);
+
+         $sql = "INSERT INTO activity (activityName, activityPrice, activityDetails, minPax, duration, activityImage) VALUES (:aname, :aprice, :adetails, :minPax, :duration, :aimage)";
+         $query = $dbh->prepare($sql);
+         $query->bindParam(':aname', $aname, PDO::PARAM_STR);
+         $query->bindParam(':aprice', $aprice, PDO::PARAM_STR);
+         $query->bindParam(':adetails', $adetails, PDO::PARAM_STR);
+         $query->bindParam(':minPax', $minPax, PDO::PARAM_INT);
+         $query->bindParam(':duration', $duration, PDO::PARAM_INT);
+         $query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
+         $query->execute();
+         $lastInsertId = $dbh->lastInsertId();
+
+         if ($lastInsertId) {
+            $msg = "Aktiviti berjaya ditambah!";
+         } else {
+            $error = "Ralat. Sila cuba lagi.";
+         }
       } else {
-         $error = "Ralat. Sila cuba lagi.";
+         $error = "Sila muat naik imej dalam format JPG, JPEG, atau PNG sahaja.";
       }
    }
+?>
 
-   ?>
    <!DOCTYPE HTML>
    <html>
 
@@ -145,6 +135,20 @@ if (strlen($_SESSION['alogin']) == 0) {
                               <div class="col-sm-8">
                                  <textarea class="form-control" rows="5" cols="50" name="activityDetails"
                                     id="activityDetails" placeholder="Maklumat aktiviti" required></textarea>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label for="focusedinput" class="col-sm-2 control-label">Bilangan peserta minimum</label>
+                              <div class="col-sm-8">
+                                 <input type="number" class="form-control1" name="minPax" id="minPax"
+                                    placeholder=" Contoh : 12 " required>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label for="focusedinput" class="col-sm-2 control-label">Tempoh aktiviti (Jam) </label>
+                              <div class="col-sm-8">
+                                 <input type="number" class="form-control1" name="duration" id="duration"
+                                    placeholder=" Contoh : 2 " required>
                               </div>
                            </div>
                            <div class="form-group">

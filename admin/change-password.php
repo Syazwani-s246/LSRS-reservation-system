@@ -143,8 +143,8 @@ return true;
 						</div>
 
 						<div class="col-sm-8 col-sm-offset-2">
-				<button type="submit" name="submit" class="btn-primary btn">Submit</button>
-				<button type="reset" class="btn-inverse btn">Reset</button>
+				<button type="submit" name="submit" class="btn-primary btn">Hantar</button>
+				<button type="reset" class="btn-inverse btn">Mula semula</button>
 			</div>
 		</div>
 			

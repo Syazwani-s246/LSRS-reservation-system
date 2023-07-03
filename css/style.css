@@ -1857,7 +1857,6 @@ ul.paging {
 .footer-social-icons ul li a {
     width: 30px;
     height: 30px;
-    background: url('../images/img-sprite.png') no-repeat;
     display: inline-block;
     position: relative
 }

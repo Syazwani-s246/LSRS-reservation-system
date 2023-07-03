@@ -13,10 +13,10 @@ if (isset($_POST['submit'])) {
 	$query->execute();
 	$lastInsertId = $dbh->lastInsertId();
 	if ($lastInsertId) {
-		$_SESSION['msg'] = "You are Scuccessfully registered. Now you can login ";
+		$_SESSION['msg'] = "Anda telah berjaya mendaftar! Sila log masuk! ";
 		header('location:thankyou.php');
 	} else {
-		$_SESSION['msg'] = "Something went wrong. Please try again.";
+		$_SESSION['msg'] = "Maaf.Terdapat ralat. Sila cuba lagi!";
 		header('location:thankyou.php');
 	}
 }

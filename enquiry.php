@@ -36,7 +36,7 @@ $error="Something went wrong. Please try again";
 <title>Pertanyaan</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="Tourism Management System In PHP" />
+<meta name="keywords" content="Reservation System" />
 <script type="applijewelleryion/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
 <link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
 <link href="css/style.css" rel='stylesheet' type='text/css' />
@@ -125,8 +125,6 @@ $error="Something went wrong. Please try again";
 <!-- //signu -->
 <!-- signin -->
 <?php include('includes/signin.php');?>			
-<!-- //signin -->
-<!-- write us -->
-<?php include('includes/write-us.php');?>
+
 </body>
 </html>

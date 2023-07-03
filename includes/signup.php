@@ -14,18 +14,21 @@ if (isset($_POST['submit'])) {
 	$query->execute();
 	$lastInsertId = $dbh->lastInsertId();
 	if ($lastInsertId) {
-		$_SESSION['msg'] = "Anda telah berjaya mendaftar. Sila log masuk. ";
-		header('location:thankyou.php');
+		echo "<script>alert('Anda telah berjaya mendaftar. Sila log masuk.');</script>";
+       
+		//echo "<script type='text/javascript'> document.location = 'signin.php'; </script>";
+          
+		// $_SESSION['msg'] = "Anda telah berjaya mendaftar. Sila log masuk. ";
+		// header('location:thankyou.php');
 	} else {
 		$_SESSION['msg'] = "Terdapat ralat. Sila cuba sekali lagi.";
 		header('location:thankyou.php');
 	}
 }
 ?>
-<!--Javascript for check email availabilty-->
+<!-- Javascript for checking email availability -->
 <script>
 	function checkAvailability() {
-
 		$("#loaderIcon").show();
 		jQuery.ajax({
 			url: "check-email-availability.php",
@@ -40,44 +43,50 @@ if (isset($_POST['submit'])) {
 	}
 </script>
 
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 	<div class="modal-dialog" role="document">
-		<div class="modal-content">
+		<div class="modal-content modal-info">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-						aria-hidden="true">&times;</span></button>
+						aria-hidden="true">×</span></button>
 			</div>
 			<section>
 				<div class="modal-body modal-spa">
 					<div class="login-grids">
 						<div class="login">
-							<!-- <div class="login-left">
-												<ul>
-													<li><a class="fb" href="#"><i></i>Facebook</a></li>
-													<li><a class="goog" href="#"><i></i>Google</a></li>
-													
-												</ul>
-											</div> -->
-							<div class="login-right">
+							<div style="text-align: center;">
+								<img src="image/logo.jpg" alt="Logo Lambo Sari"
+									style="max-width: 200px; max-height: 200px;">
+							</div>
+							<div class="signup">
 								<form name="signup" method="post">
-									<h3>Tambah akaun</h3>
-
-
-									<input type="text" value="" placeholder="Full Name" name="fname" autocomplete="on"
-										required="">
-									<input type="text" value="" placeholder="Mobile number" maxlength="10"
-										name="mobilenumber" autocomplete="on" required="">
-									<input type="text" value="" placeholder="Email id" name="email" id="email"
-										onBlur="checkAvailability()" autocomplete="on" required="">
-									<span id="user-availability-status" style="font-size:12px;"></span>
-									<input type="password" value="" placeholder="Password" name="password" required="">
-									<input type="submit" name="submit" id="submit" value="BUAT AKAUN">
+									<h3><center>Daftar akaun</center></h3>
+									<div style="text-align: center; margin-bottom: 10px;">
+										<input type="text" value="" placeholder="Nama penuh" name="fname"
+											autocomplete="on" required=""
+											style="width: 100%; padding: 10px; margin-bottom: 10px;">
+										<br>
+										<input type="number" value="" placeholder="Nombor telefon" maxlength="10"
+											name="mobilenumber" autocomplete="on" required=""
+											style="width: 100%; padding: 10px; margin-bottom: 10px;">
+										<br>
+										<input type="text" value="" placeholder="Alamat emel" name="email" id="email"
+											onBlur="checkAvailability()" autocomplete="on" required=""
+											style="width: 100%; padding: 10px; margin-bottom: 10px;">
+										<span id="user-availability-status" style="font-size: 12px;"></span>
+										<br>
+										<input type="password" value="" placeholder="Kata laluan" name="password"
+											required="" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+										<br>
+										<input type="submit" name="submit" id="submit" value="Daftar">
+									</div>
 								</form>
 							</div>
+
 							<div class="clearfix"></div>
 						</div>
-						<!-- <p>By logging in you agree to our <a href="page.php?type=terms">Terms and Conditions</a> and <a href="page.php?type=privacy">Privacy Policy</a></p> -->
 					</div>
+					<!-- <p>By logging in you agree to our <a href="page.php?type=terms">Terms and Conditions</a> and <a href="page.php?type=privacy">Privacy Policy</a></p> -->
 				</div>
 			</section>
 		</div>

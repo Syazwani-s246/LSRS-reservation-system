@@ -5,7 +5,7 @@ if (!empty($_POST["emailid"])) {
 	$email = $_POST["emailid"];
 	if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
 
-		echo "error : You did not enter a valid email.";
+		echo "error : Alamat emel ini tidak wujud";
 	} else {
 		$sql = "SELECT EmailId FROM customers WHERE EmailId=:email";
 		$query = $dbh->prepare($sql);
@@ -14,11 +14,11 @@ if (!empty($_POST["emailid"])) {
 		$results = $query->fetchAll(PDO::FETCH_OBJ);
 		$cnt = 1;
 		if ($query->rowCount() > 0) {
-			echo "<span style='color:red'> Email already exists .</span>";
+			echo "<span style='color:red'> Alamat emel ini telah didaftarkan .</span>";
 			echo "<script>$('#submit').prop('disabled',true);</script>";
 		} else {
 
-			echo "<span style='color:green'> Email available for Registration .</span>";
+			echo "<span style='color:green'> Emel ini tersedia untuk pendaftaran .</span>";
 			echo "<script>$('#submit').prop('disabled',false);</script>";
 		}
 	}

@@ -21,10 +21,10 @@ $chngpwd1-> bindParam(':email', $email, PDO::PARAM_STR);
 $chngpwd1-> bindParam(':mobile', $mobile, PDO::PARAM_STR);
 $chngpwd1-> bindParam(':newpassword', $newpassword, PDO::PARAM_STR);
 $chngpwd1->execute();
-$msg="Your Password succesfully changed";
+$msg="Kata laluan berjaya ditukar";
 }
 else {
-$error="Email id or Mobile no is invalid";	
+$error="Alamat emel atau nombor telefon TIDAK SAH";	
 }
 }
 
@@ -32,10 +32,10 @@ $error="Email id or Mobile no is invalid";
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>LSRS | Keselamatan</title>
+<title>Lupa kata laluan</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="Tourism Management System In PHP" />
+<meta name="keywords" content="Reservation System" />
 <script type="applijewelleryion/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
 <link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
 <link href="css/style.css" rel='stylesheet' type='text/css' />
@@ -57,7 +57,7 @@ function valid()
 {
 if(document.chngpwd.newpassword.value!= document.chngpwd.confirmpassword.value)
 {
-alert("New Password and Confirm Password Field do not match  !!");
+alert("Ruangan kata laluan BARU tidak sama!! Sila semak");
 document.chngpwd.confirmpassword.focus();
 return false;
 }
@@ -87,41 +87,36 @@ return true;
 <!-- top-header -->
 <div class="top-header">
 <?php include('includes/header.php');?>
-<div class="banner-1 ">
-	<div class="container">
-		<h1 class="wow zoomIn animated animated" data-wow-delay=".5s" style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;">LSRS-Tourism Management System</h1>
-	</div>
-</div>
-<!--- /banner-1 ---->
+
 <!--- privacy ---->
 <div class="privacy">
 	<div class="container">
-		<h3 class="wow fadeInDown animated animated" data-wow-delay=".5s" style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">Recover Password</h3>
+		<h3 class="wow fadeInDown animated animated" data-wow-delay=".5s" style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">Tukar kata laluan</h3>
 		<form name="chngpwd" method="post" onSubmit="return valid();">
 		 <?php if($error){?><div class="errorWrap"><strong>RALAT</strong>:<?php echo htmlentities($error); ?> </div><?php } 
 				else if($msg){?><div class="succWrap"><strong>BERJAYA</strong>:<?php echo htmlentities($msg); ?> </div><?php }?>
 	<p style="width: 350px;">
 		
-			<b>Email id</b>  <input type="email" name="email" class="form-control" id="email" placeholder="Reg Email id" required="">
+			<b>Alamat emel</b>  <input type="email" name="email" class="form-control" id="email" placeholder="Alamat emel yang berdaftar" required="">
 	</p> 
 
 	<p style="width: 350px;">
 		
-			<b>Mobile No</b>  <input type="text" name="mobile" class="form-control" id="mobile" placeholder="Reg Mobile no" required="">
+			<b>Nombor telefon</b>  <input type="number" name="mobile" class="form-control" id="mobile" placeholder="Nombor telefon yang berdaftar" required="">
 	</p> 
 
 <p style="width: 350px;">
-<b>New  Password</b>
-<input type="password" class="form-control" name="newpassword" id="newpassword" placeholder="New Password" required="">
+<b>Kata laluan BARU</b>
+<input type="password" class="form-control" name="newpassword" id="newpassword" placeholder="Kata laluan BARU" required="">
 </p>
 
 <p style="width: 350px;">
-<b>Confirm Password</b>
-	<input type="password" class="form-control" name="confirmpassword" id="confirmpassword" placeholder="Confrim Password" required="">
+<b>Masukkan kata laluan BARU sekali lagi</b>
+	<input type="password" class="form-control" name="confirmpassword" id="confirmpassword" placeholder="Kata laluan BARU" required="">
 			</p>
 
 			<p style="width: 350px;">
-<button type="submit" name="submit50" class="btn-primary btn">Change</button>
+<button type="submit" name="submit50" class="btn-primary btn">Tukar kata laluan</button>
 			</p>
 			</form>
 
@@ -138,7 +133,6 @@ return true;
 <!-- signin -->
 <?php include('includes/signin.php');?>			
 <!-- //signin -->
-<!-- write us -->
-<?php include('includes/write-us.php');?>
+
 </body>
 </html>

@@ -1,46 +1,65 @@
 <?php
 session_start();
 error_reporting(0);
+// ini_set('display_errors', 1);
+//error_reporting(E_ALL);
 
 include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
-    header('location:reservation.php');
+	header('location:reservation.php');
 } else {
-	 // Get the activity id from the URL
-	 $activityId = intval($_GET['activityId']);
-    if (isset($_POST['submit'])) {
-        // Check if there was a file uploaded
-        if (!empty($_FILES['activityImage']['name'])) {
-            // Set the target directory for the uploaded file
-            $target_dir = "admin/upload/";
-            // Get the file name
-            $aimage = basename($_FILES["activityImage"]["name"]);
-            // Create the full path
-            $target_file = $target_dir . $aimage;
-            // Move the uploaded file to the target directory
-            move_uploaded_file($_FILES["activityImage"]["tmp_name"], $target_file);
-        }
 
-       
-        // Update the database with the new image
-        $sql = "UPDATE activity SET activityImage=:aimage WHERE activityId=:activityId";
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
-        $query->bindParam(':activityId', $activityId, PDO::PARAM_STR);
-        $query->execute();
-        // Success message
-        $msg = "Activity image successfully updated";
-    }
+	// Get the activity id image which is aimage..not getting activityId from the URL from prev page (update-activity.php)
+	$activityId = intval($_GET['aimage']);
 
+	if (isset($_POST['submit'])) {
+		// Check if there was a file uploaded
+		if (!empty($_FILES['activityImage']['name'])) {
+			// Set the target directory for the uploaded file
+			$target_dir = "activityImage/";
+			// Get the file name
+			$aimage = basename($_FILES["activityImage"]["name"]);
 
+			// Get the file extension
+			$imageFileType = strtolower(pathinfo($aimage, PATHINFO_EXTENSION));
 
+			// Define the allowed file formats
+			$allowedFormats = array('jpg', 'jpeg', 'png');
 
+			// Check if the file format is allowed
+			if (!in_array($imageFileType, $allowedFormats)) {
+				$error = "Sila muat naik imej dalam format JPG, JPEG, atau PNG sahaja.";
+				// You can handle the error as per your requirement, e.g., display an error message to the user
+				echo $error;
+				exit; // Stop execution further if an error occurs
+			}
+
+			// Create the full path
+			$target_file = $target_dir . $aimage;
+			// Move the uploaded file to the target directory
+			move_uploaded_file($_FILES["activityImage"]["tmp_name"], $target_file);
+		}
+
+		// Update the database with the new image
+		$sql = "UPDATE activity SET activityImage=:aimage WHERE activityId=:activityId";
+		$query = $dbh->prepare($sql);
+		$query->bindParam(':aimage', $aimage, PDO::PARAM_STR);
+		$query->bindParam(':activityId', $activityId, PDO::PARAM_INT);
+		$query->execute();
+		// Success message
+		$msg = "Gambar aktiviti berjaya ditukar!";
+
+		echo "<script>
+				alert('Gambar aktiviti berjaya ditukar!');
+				window.location.href='manage-activity.php';
+			  </script>";
+	}
 	?>
 	<!DOCTYPE HTML>
 	<html>
 
 	<head>
-		<title>LSRS | Tambah aktiviti</title>
+		<title>Tukar gambar</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="keywords" content="Pooled Responsive web template, Bootstrap Web Templates, Flat Web Templates, Android Compatible web template, 
@@ -90,7 +109,8 @@ if (strlen($_SESSION['alogin']) == 0) {
 				</div>
 				<!--heder end here-->
 				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="dashboard.php">Utama</a><i class="fa fa-angle-right"></i>Kemaskini gambar aktiviti</li>
+					<li class="breadcrumb-item"><a href="dashboard.php">Utama</a><i class="fa fa-angle-right"></i>Kemaskini
+						gambar aktiviti</li>
 				</ol>
 				<!--grid-->
 				<div class="grid-form">
@@ -137,16 +157,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 									</div>
 
 
-
-
-
 							</div>
 
 							</form>
-
-
-
-
 
 							<div class="panel-footer">
 

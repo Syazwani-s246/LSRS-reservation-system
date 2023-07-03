@@ -5,7 +5,7 @@ include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:reservation.php');
 } else {
-    $sql = "SELECT b.*, c.fullName, a.activityName FROM bookings b 
+    $sql = "SELECT b.*, c.fullName, a.* FROM bookings b 
             JOIN customers c ON b.customerId = c.id
             JOIN activity a ON b.activityId = a.activityId";
     $query = $dbh->prepare($sql);
@@ -14,16 +14,23 @@ if (strlen($_SESSION['alogin']) == 0) {
 
     $bookings = array();
     foreach ($results as $result) {
+           // Extract the time start and duration from the time slot
+        $timeStart = $result['timeSlot'];
+        $duration = $result['duration'];
         $title = $result['timeSlot'] . "\n" . $result['fullName'] . "\n" . $result['activityName'];
 
+        // Modify the date format to yyyy-mm-dd
+        $start = date('Y-m-d', strtotime($result['bookDate'])); // Use 'Y' instead of 'yy'
+
+        
         $booking = array(
             'title' => $title,
-            'start' => $result['bookDate'],
-            'url' => 'booking-details.php?bookingId' . $result['bookingId']
+            'start' => $start,
+            'url' => 'booking-details.php?bookingId=' . $result['bookingId']
         );
+
         $bookings[] = $booking;
     }
-
     $bookingsJson = json_encode($bookings);
     ?>
 

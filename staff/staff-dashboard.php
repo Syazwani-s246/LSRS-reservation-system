@@ -1,5 +1,6 @@
 <?php
 session_start();
+error_reporting(0);
 include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
    header('location:reservation.php');
@@ -9,7 +10,7 @@ if (strlen($_SESSION['alogin']) == 0) {
    <html>
 
    <head>
-      <title> LSRS | Admin</title>
+      <title> LSRS | Staf</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
       <script type="application/x-javascript"> addEventListener("load", function() 
@@ -48,6 +49,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                <div class="four-grids">
                   <div class="col-md-3 four-grid">
                      <div class="four-agileits">
+                         <a href="manage-customer-list.php">
                         <div class="icon">
                            <i class="glyphicon glyphicon-user" aria-hidden="true"></i>
                         </div>
@@ -67,26 +69,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                   </div>
 
 
-                  <div class="four-grids">
-                  <div class="col-md-3 four-grid">
-                     <div class="four-agileits">
-                        <div class="icon">
-                           <i class="glyphicon glyphicon-user" aria-hidden="true"></i>
-                        </div>
-                        <div class="four-text">
-                           <h3>Staf</h3>
-                           <?php $sql = "SELECT id from staff";
-                           $query = $dbh->prepare($sql);
-                           $query->execute();
-                           $results = $query->fetchAll(PDO::FETCH_OBJ);
-                           $cnt = $query->rowCount();
-                           ?>
-                           <h4>
-                              <?php echo htmlentities($cnt); ?>
-                           </h4>
-                        </div>
-                     </div>
-                  </div>
+                  
 
 
                   <div class="col-md-3 four-grid">

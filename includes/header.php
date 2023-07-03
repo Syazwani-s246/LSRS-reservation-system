@@ -6,7 +6,8 @@
 			<li class="hm"><a href="index.html"><i class="fa fa-home"></i></a></li>
 			<li class="prnt"><a href="profile.php">Profil saya</a></li>
 				<li class="prnt"><a href="change-password.php">Tukar kata laluan</a></li>
-			<li class="prnt"><a href="book-history.php">Sejarah tempahan</a></li>
+			<li class="prnt"><a href="book-history.php">Tempahan saya</a></li>
+			<li class="prnt"><a href="payment-list.php">Pembayaran</a></li>
 			<!-- <li class="prnt"><a href="issuetickets.php">Issue Tickets</a></li> -->
 		</ul>
 		<ul class="tp-hd-rgt wow fadeInRight animated" data-wow-delay=".5s"> 
@@ -53,7 +54,7 @@
 				<!-- Brand and toggle get grouped for better mobile display -->
 				<div class="navbar-header">
 				  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-					<span class="sr-only">Toggle Navigation</span>
+					<span class="sr-only"></span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>

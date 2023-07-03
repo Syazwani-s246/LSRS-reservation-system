@@ -2,29 +2,21 @@
 session_start();
 error_reporting(0);
 include('includes/config.php');
-if (strlen($_SESSION['login']) == 0) {
+if (strlen($_SESSION['alogin']) == 0) {
 	header('location:reservation.php');
 } else {
-	if (isset($_POST['submit5'])) {
-		$password =($_POST['password']);
-		$newpassword = ($_POST['newpassword']);
+	if (isset($_POST['submitstaff'])) {
+		$name = $_POST['fullName'];
+		$phoneNumber = $_POST['phoneNumber'];
 		$email = $_SESSION['login'];
-		$sql = "SELECT Password FROM customers WHERE EmailId=:email and Password=:password";
+
+		$sql = "update staff set fullName=:fullName,mobileNumber=:phoneNumber where emailId=:email";
 		$query = $dbh->prepare($sql);
+		$query->bindParam(':fullName', $fullName, PDO::PARAM_STR);
+		$query->bindParam(':phoneNumber', $phoneNumber, PDO::PARAM_STR);
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
-		$query->bindParam(':password', $password, PDO::PARAM_STR);
 		$query->execute();
-		$results = $query->fetchAll(PDO::FETCH_OBJ);
-		if ($query->rowCount() > 0) {
-			$con = "update customers set Password=:newpassword where EmailId=:email";
-			$chngpwd1 = $dbh->prepare($con);
-			$chngpwd1->bindParam(':email', $email, PDO::PARAM_STR);
-			$chngpwd1->bindParam(':newpassword', $newpassword, PDO::PARAM_STR);
-			$chngpwd1->execute();
-			$msg = "Kata laluan berjaya diubah";
-		} else {
-			$error = "Kata laluan semasa SALAH";
-		}
+		$msg = "Profil anda berjaya dikemaskini!";
 	}
 
 	?>
@@ -32,7 +24,7 @@ if (strlen($_SESSION['login']) == 0) {
 	<html>
 
 	<head>
-		<title>Keselamatan</title>
+		<title>Pelanggan</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="keywords" content="Reservation System" />
@@ -53,16 +45,7 @@ if (strlen($_SESSION['login']) == 0) {
 		<script>
 			new WOW().init();
 		</script>
-		<script type="text/javascript">
-			function valid() {
-				if (document.chngpwd.newpassword.value != document.chngpwd.confirmpassword.value) {
-					alert("Semak kata laluan BARU anda !");
-					document.chngpwd.confirmpassword.focus();
-					return false;
-				}
-				return true;
-			}
-		</script>
+
 		<style>
 			.errorWrap {
 				padding: 10px;
@@ -87,15 +70,14 @@ if (strlen($_SESSION['login']) == 0) {
 	<body>
 		<!-- top-header -->
 		<div class="top-header">
-			<?php include('includes/header.php'); ?>
 			
 			<!--- /banner-1 ---->
 			<!--- privacy ---->
 			<div class="privacy">
 				<div class="container">
 					<h3 class="wow fadeInDown animated animated" data-wow-delay=".5s"
-						style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">Tukar kata laluan</h3>
-					<form name="chngpwd" method="post" onSubmit="return valid();">
+						style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">Maklumat saya</h3>
+					<form name="chngpwd" method="post">
 						<?php if ($error) { ?>
 							<div class="errorWrap"><strong>RALAT</strong>:
 								<?php echo htmlentities($error); ?>
@@ -104,27 +86,38 @@ if (strlen($_SESSION['login']) == 0) {
 								<div class="succWrap"><strong>BERJAYA</strong>:
 								<?php echo htmlentities($msg); ?>
 								</div>
-						<?php } ?>
-						<p style="width: 350px;">
+							<?php } ?>
 
-							<b>Kata laluan semasa</b> <input type="password" name="password" class="form-control"
-								id="exampleInputPassword1" placeholder="Kata laluan semasa" required="">
-						</p>
+						<?php
+						$useremail = $_SESSION['login'];
+						$sql = "SELECT * from customers where emailId=:useremail";
+						$query = $dbh->prepare($sql);
+						$query->bindParam(':useremail', $useremail, PDO::PARAM_STR);
+						$query->execute();
+						$results = $query->fetchAll(PDO::FETCH_OBJ);
+						$cnt = 1;
+						if ($query->rowCount() > 0) {
+							foreach ($results as $result) { ?>
+
+								<p style="width: 350px;">
+
+									<b>Nama penuh</b> <input type="text" name="fullName"
+										value="<?php echo htmlentities($result->fullName); ?>" class="form-control" id="fullName"
+										readonly>
+								</p>
+
+								<p style="width: 350px;">
+									<b>Nombor telefon</b>
+									<input type="number" class="form-control" name="phoneNumber" maxlength="10"
+										value="<?php echo htmlentities($result->mobileNumber); ?>" id="phoneNumber" required="">
+								</p>
+
+								
+							<?php }
+						} ?>
 
 						<p style="width: 350px;">
-							<b>Kata laluan BARU</b>
-							<input type="password" class="form-control" name="newpassword" id="newpassword"
-								placeholder="Kata laluan BARU" required="">
-						</p>
-
-						<p style="width: 350px;">
-							<b>Sila masukkan kata laluan BARU sekali lagi</b>
-							<input type="password" class="form-control" name="confirmpassword" id="confirmpassword"
-								placeholder="Kata laluan BARU" required="">
-						</p>
-
-						<p style="width: 350px;">
-							<button type="submit" name="submit5" class="btn-primary btn">Ubah</button>
+							<button type="submit" name="submitstaff" class="btn-primary btn">Update</button>
 						</p>
 					</form>
 
@@ -141,7 +134,7 @@ if (strlen($_SESSION['login']) == 0) {
 			<!-- signin -->
 			<?php include('includes/signin.php'); ?>
 			<!-- //signin -->
-	
+
 	</body>
 
 	</html>

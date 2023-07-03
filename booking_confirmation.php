@@ -54,6 +54,16 @@ if (isset($_SESSION['bookingDetails'])) {
         $query->bindParam(':totalPayment', $totalPayment, PDO::PARAM_STR);
         $query->execute();
 
+        //this is generated after data inserted into bookings table, easy way, after customer clicked "Hantar"
+        $bookingId = $dbh->lastInsertId();
+        //to check whether last bookingId is correct
+        // if ($bookingId) {
+        //     echo "Last Inserted Booking ID: " . $bookingId;
+        // } else {
+        //     echo "Failed to retrieve Last Inserted Booking ID";
+        // }
+
+
         // Check if the 'totalPayment' key exists before accessing it
         if (isset($bookingDetails['totalPayment'])) {
             $totalPayment = $bookingDetails['totalPayment'];
@@ -65,13 +75,26 @@ if (isset($_SESSION['bookingDetails'])) {
         // unset($_SESSION['bookingDetails']); // Remove booking details from session
 
         // Create the success message with the payment link
-        // $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
-        $msg = 'Tempahan berjaya dihantar, Sila tekan butang <a href="payment.php?activityId=' . $activityId . '&customerId=' . $customerId . '" class="btn btn-primary">Bayar</a> untuk masukkan slip pembayaran.';
+        $paymentLink = 'payment.php?bookingId=' . $bookingId . '&activityId=' . $activityId . '&customerId=' . $customerId;
 
-         // Redirect to payment.php
-        // echo "<script>window.location.href = 'payment.php?activityId=$activityId&customerId=$customerId';</script>";
-        // exit();
-
+        $msg = '
+        <!-- Confirmation Popup -->
+        <div id="confirmationPopup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmationPopupLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="confirmationPopupLabel">Tempahan telah dihantar!</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Sila pilih cara pembayaran:</p>
+                        <div class="payment-options">
+                            <a href="' . $paymentLink . '" class="btn btn-primary">Bayar Sekarang</a>
+                            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#bayarNantiModal">Bayar Nanti</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>';
     }
 } else {
     header("Location: index.php"); // Redirect to the home page if booking details are not available
@@ -92,6 +115,16 @@ if (isset($_SESSION['bookingDetails'])) {
     <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
     <link href="css/font-awesome.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#confirmationPopup').modal('show'); // Show the confirmation modal when the page is loaded
+        });
+    </script>
+
+
 </head>
 
 <body>
@@ -101,7 +134,7 @@ if (isset($_SESSION['bookingDetails'])) {
     <!--- privacy ---->
     <div class="privacy">
         <div class="container">
-            <h3 class="tittle">Pengesahan tempahan</h3>
+            <h3 class="title">Pengesahan tempahan</h3>
             <?php if (isset($msg)) { ?>
                 <div class="succWrap"><strong>BERJAYA</strong>:
                     <!-- Display the message with the payment link -->
@@ -157,6 +190,11 @@ if (isset($_SESSION['bookingDetails'])) {
                 <input type="hidden" name="customerId" value="<?php echo $customerId; ?>">
 
 
+
+
+                <input type="hidden" name="bookingId" value="<?php echo $bookingId; ?>">
+
+
                 <p><strong>Aktiviti :</strong>
                     <?php echo htmlentities($activityName); ?>
                 </p>
@@ -176,14 +214,13 @@ if (isset($_SESSION['bookingDetails'])) {
                     <?php echo htmlentities($bookingDetails['comment']); ?>
                 </p>
 
-                <!-- Undefined array key "totalPayment" in C:\xampp\htdocs\SistemTempahanLamboSari3.0\booking_confirmation.php on line 175 -->
                 <p><strong>Jumlah bayaran (RM):</strong>
                     <?php echo htmlentities($bookingDetails['totalPayment']); ?>
                 </p>
-                
+
                 <form method="post">
                     <div class="form-group">
-                        <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Hantar</button>
                     </div>
                 </form>
             </div>
@@ -191,13 +228,29 @@ if (isset($_SESSION['bookingDetails'])) {
     </div>
     </div>
     </div>
-    <!--- /privacy ---->
-    <!--- footer-top ---->
-    <?php include('includes/footer.php'); ?>
-    <!--- /footer-top ---->
-    <!--- footer-bottom ---->
 
-    <!--- /footer-bottom ---->
+    <!-- Bayar Nanti Modal -->
+    <div class="modal fade" id="bayarNantiModal" tabindex="-1" role="dialog" aria-labelledby="bayarNantiModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Bayar Nanti</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Sila jelaskan pembayaran selewatnya 3 hari sebelum tarikh tempahan.</p>
+                    <a href="book-history.php" class="btn btn-primary">Kembali ke Senarai Tempahan</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+
+
+    <?php include('includes/footer.php'); ?>
 </body>
 
 </html>
