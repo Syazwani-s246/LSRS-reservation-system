@@ -40,12 +40,7 @@ include 'includes/config.php';
 
 <body>
    <?php include 'includes/header.php'; ?>
-   <div class="container">
-      <h1 class="wow zoomIn animated animated" data-wow-delay=".5s"
-         style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;"> Melestarikan Warisan secara
-         Digital
-      </h1>
-   </div>
+   
    <!-- </div> -->
    <!---activity---->
    <div class="container">

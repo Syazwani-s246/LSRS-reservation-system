@@ -98,7 +98,7 @@ if (strlen($_SESSION['login']) == 0) {
                             <th>Masa</th>
                             <th>Catatan</th>
                             <th>Status</th>
-                            <th>Tindakan</th>
+                            
                         </tr>
                         <?php
                         $userEmail = $_SESSION['login'];

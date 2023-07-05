@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(E_ALL);
+error_reporting(0);
 
 include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
@@ -11,7 +11,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 	<html>
 
 	<head>
-		<title>LSRS | Urus staf</title>
+		<title>Urus staf</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<script type="application/x-javascript">
@@ -70,9 +70,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 										<th>#</th>
 										<th>Nama</th>
 										<th>Nombor Telefon</th>
-										<th>Alamat</th>
+										
 										 <th>Peranan</th>
-										<th>Tindakan</th>
+										<!-- <th>Tindakan</th> -->
 									</tr>
 								</thead>
 								<tbody>
@@ -87,13 +87,22 @@ if (strlen($_SESSION['alogin']) == 0) {
 											<tr>
 												<td><?php echo htmlentities($cnt); ?></td>
 												<td><?php echo htmlentities($result->fullName); ?></td>
-												<td><?php echo htmlentities($result->phoneNumber); ?></td>
-												<td><?php echo htmlentities($result->address); ?></td>
-												<td><?php echo htmlentities($result->role); ?></td>
+												
+
+												
 												<td>
+													<?php
+													$mobileNumber = htmlentities($result->phoneNumber);
+													$url = "https://api.whatsapp.com/send?phone=" . $mobileNumber;
+													?>
+													<a href="<?php echo $url; ?>" target="_blank"><?php echo $mobileNumber; ?></a>
+												</td>
+											
+												<td><?php echo htmlentities($result->role); ?></td>
+												<!-- <td>
 													<a href="update-staff.php?id=<?php echo htmlentities($result->id); ?>"><span class="glyphicon glyphicon-pencil"></span></a>
 													<a href="delete-staff.php?id=<?php echo htmlentities($result->id); ?>"><span class="glyphicon glyphicon-trash"></span></a>
-												</td>
+												</td> -->
 											</tr>
 											<?php $cnt = $cnt + 1;
 										}

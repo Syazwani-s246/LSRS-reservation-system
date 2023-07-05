@@ -27,6 +27,29 @@
 	<!--Glyphicons-->
 	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
 	<style>
+
+
+
+    .jumbotron {
+        background-color: #cf995f;
+        color: #303030;
+        padding: 100px 25px;
+        font-family: Montserrat, sans-serif;
+        position: relative; /* Add this property */
+    }
+
+    .jumbotron img {
+        position: fixed; /* Add this property */
+        top: 0; /* Add this property */
+        left: 0; /* Add this property */
+        width: 100%; /* Add this property */
+        height: 100%; /* Add this property */
+        object-fit: cover; /* Add this property */
+        z-index: -1; /* Add this property */
+    }
+
+    
+
 		body {
 			font: 400 15px Lato, sans-serif;
 			line-height: 1.8;
@@ -271,15 +294,15 @@
 		</div>
 	</nav>
 	<div class="jumbotron text-center">
-		<h1>Lambo Sari</h1>
-		<p>Melestarikan Warisan secara Digital</p>
+    <h1>Lambo Sari</h1>
+    <p>Melestarikan Warisan secara Digital</p>
+    <!-- <img src="image/headerhome.png" alt="Lambo Sari Banner" style="width: auto; height: auto;"> -->
 
+    <a href="reservation.php">
+        <button class="btn btn-secondary btn-lg">Tempah slot aktiviti sekarang</button>
+    </a>
+</div>
 
-		<a href="reservation.php">
-			<button class="btn btn-secondary btn-lg">Tempah slot aktiviti sekarang</button>
-		</a>
-
-	</div>
 	<!-- Container (About Section) -->
 	<div id="about" class="container-fluid">
 		<div class="row">

@@ -160,72 +160,72 @@ if (isset($_POST['submit2'])) {
                         return [true, ''];
                     }
                 },
-            
 
-            onSelect: function (dateText, inst) {
-                var selectedDate = new Date(dateText);
-                var selectedDateString = dateText;
-                var bookedTimeSlots = <?php echo json_encode($bookedTimeSlots); ?>;
-                var timeSlots = generateTimeSlots(duration, selectedDate, bookedTimeSlots);
 
-                // Clear previous buttons and add new time slots as buttons
-                var timeSlotsContainer = $('#timeSlotsContainer');
-                timeSlotsContainer.empty();
-                timeSlots.forEach(function (timeSlot, index) {
-                    var radioOption = $(`
+                onSelect: function (dateText, inst) {
+                    var selectedDate = new Date(dateText);
+                    var selectedDateString = dateText;
+                    var bookedTimeSlots = <?php echo json_encode($bookedTimeSlots); ?>;
+                    var timeSlots = generateTimeSlots(duration, selectedDate, bookedTimeSlots);
+
+                    // Clear previous buttons and add new time slots as buttons
+                    var timeSlotsContainer = $('#timeSlotsContainer');
+                    timeSlotsContainer.empty();
+                    timeSlots.forEach(function (timeSlot, index) {
+                        var radioOption = $(`
                     <div>
                     <input type='radio' id='timeslot-${index}' name='selectedTimeSlot' value='${timeSlot}'>
                     <label for='timeslot-${index}'>${timeSlot}</label>
                     </div>
                 `);
-                    timeSlotsContainer.append(radioOption);
-                });
-            }
-        });
+                        timeSlotsContainer.append(radioOption);
+                    });
+                }
+            });
 
-        // initial render of time slots
-        var timeSlots = generateTimeSlots(duration);
-        // Clear previous buttons and add new time slots as buttons
-        var timeSlotsContainer = $('#timeSlotsContainer');
-        timeSlotsContainer.empty();
-        timeSlots.forEach(function (timeSlot, index) {
-            var radioOption = $(`
+            // initial render of time slots
+            var timeSlots = generateTimeSlots(duration);
+            // Clear previous buttons and add new time slots as buttons
+            var timeSlotsContainer = $('#timeSlotsContainer');
+            timeSlotsContainer.empty();
+            timeSlots.forEach(function (timeSlot, index) {
+                var radioOption = $(`
                     <div>
                     <input type='radio' id='timeslot-${index}' name='selectedTimeSlot' value='${timeSlot}'>
                     <label for='timeslot-${index}'>${timeSlot}</label>
                     </div>
                 `);
-            timeSlotsContainer.append(radioOption);
-        });
+                timeSlotsContainer.append(radioOption);
+            });
 
 
 
 
-        // Function to generate time slots
-        function generateTimeSlots(duration) {
-            var startTime = new Date();
-            startTime.setHours(9, 0, 0); // Set the starting time (e.g., 9:00 AM)
+            // Function to generate time slots
+            function generateTimeSlots(duration) {
+                var startTime = new Date();
+                startTime.setHours(9, 0, 0); // Set the starting time (e.g., 9:00 AM)
 
-            var endTime = new Date();
-            endTime.setHours(18, 0, 0); // Set the ending time (e.g., 6:00 PM)
+                var endTime = new Date();
+                endTime.setHours(18, 0, 0); // Set the ending time (e.g., 6:00 PM)
 
-            var timeSlots = [];
-            var currentTime = startTime;
+                var timeSlots = [];
+                var currentTime = startTime;
 
-            while (currentTime <= endTime) {
-                var timeSlot = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                timeSlots.push(timeSlot);
-                // Add the interval to the current time
-                currentTime.setHours(currentTime.getHours() + duration);
+                while (currentTime <= endTime) {
+                    var timeSlot = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    timeSlots.push(timeSlot);
+                    // Add the interval to the current time
+                    currentTime.setHours(currentTime.getHours() + duration);
+                }
+                return timeSlots;
             }
-            return timeSlots;
-        }
 
-        // Disable booked time slots for the selected date
-        var bookedTimeSlots = <?php echo json_encode($bookedTimeSlots); ?>;
-        bookedTimeSlots.forEach(function (bookedTimeSlot) {
-            $('input[value="' + bookedTimeSlot + '"]').prop('disabled', true).parent().addClass('fully-booked-time');
-        });
+            // Disable booked time slots for the selected date
+            var bookedTimeSlots = <?php echo json_encode($bookedTimeSlots); ?>;
+            bookedTimeSlots.forEach(function (bookedTimeSlot) {
+                $('input[value="' + bookedTimeSlot + '"]').prop('disabled', true).parent().addClass('fully-booked-time');
+            });
 
 
 
@@ -281,6 +281,18 @@ if (isset($_POST['submit2'])) {
     </style>
 
     </style>
+
+    <script>
+        function validateForm() {
+            var selectedTimeSlot = $('input[name="selectedTimeSlot"]:checked').val();
+            if (!selectedTimeSlot) {
+                alert("Sila pilih slot masa.");
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
+        }
+    </script>
+
 </head>
 
 <body>
@@ -312,7 +324,7 @@ if (isset($_POST['submit2'])) {
             $cnt = 1;
             if ($query->rowCount() > 0) {
                 foreach ($results as $result) { ?>
-                    <form name="book" method="post">
+                    <form name="book" method="post" onsubmit="return validateForm()">
                         <div class="selectactivity_top">
                             <div class="col-md-4 selectactivity_left wow fadeInLeft animated" data-wow-delay=".5s">
                                 <img src="admin/activityImage/<?php echo htmlentities($result->activityImage); ?>"
@@ -358,6 +370,8 @@ if (isset($_POST['submit2'])) {
                                             <label>Pilih slot masa<span style="color:red;">*</span></label>
                                             <div id="timeSlotsContainer"></div>
                                         </div>
+
+
 
 
                                     </div>

@@ -10,7 +10,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 	<html>
 
 	<head>
-		<title>LSRS | Urus pelanggan</title>
+		<title>Urus pelanggan</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<script
@@ -94,6 +94,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 										<th>Emel</th>
 										<th>Tarikh daftar </th>
 										<th>Tarikh kemaskini</th>
+
 									</tr>
 								</thead>
 								<tbody>
@@ -112,17 +113,27 @@ if (strlen($_SESSION['alogin']) == 0) {
 													<?php echo htmlentities($result->fullName); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->mobileNumber); ?>
+													<?php
+													$mobileNumber = htmlentities($result->mobileNumber);
+													$url = "https://api.whatsapp.com/send?phone=" . $mobileNumber;
+													?>
+													<a href="<?php echo $url; ?>" target="_blank"><?php echo $mobileNumber; ?></a>
 												</td>
+
 												<td>
-													<?php echo htmlentities($result->emailId); ?>
+													<?php
+													$emailId = htmlentities($result->emailId);
+													?>
+													<a href="mailto:<?php echo $emailId; ?>"><?php echo $emailId; ?></a>
 												</td>
+
 												<td>
 													<?php echo htmlentities($result->regDate); ?>
 												</td>
 												<td>
 													<?php echo htmlentities($result->updationDate); ?>
 												</td>
+
 											</tr>
 											<?php $cnt = $cnt + 1;
 										}

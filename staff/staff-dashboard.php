@@ -91,7 +91,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                         </div>
                      </div>
                   </div>
-                  <div class="col-md-3 four-grid">
+                  <!-- <div class="col-md-3 four-grid">
                      <div class="four-w3ls">
                         <div class="icon">
                            <i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i>
@@ -109,7 +109,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                            </h4>
                         </div>
                      </div>
-                  </div>
+                  </div> -->
                   <div class="col-md-3 four-grid">
                      <div class="four-wthree">
                         <div class="icon">
@@ -125,6 +125,26 @@ if (strlen($_SESSION['alogin']) == 0) {
                            ?>
                            <h4>
                               <?php echo htmlentities($cnt3); ?>
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="col-md-3 four-grid">
+                     <div class="four-wthree">
+                        <div class="icon">
+                           <i class="glyphicon glyphicon-credit-card" aria-hidden="true"></i>
+                        </div>
+                        <div class="four-text">
+                           <h3>Bayaran</h3>
+                           <?php $sql4 = "SELECT paymentId from payments";
+                           $query4 = $dbh->prepare($sql4);
+                           $query4->execute();
+                           $results4 = $query3->fetchAll(PDO::FETCH_OBJ);
+                           $cnt4 = $query4->rowCount();
+                           ?>
+                           <h4>
+                              <?php echo htmlentities($cnt4); ?>
                            </h4>
                         </div>
                      </div>

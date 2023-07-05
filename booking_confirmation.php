@@ -56,7 +56,7 @@ if (isset($_SESSION['bookingDetails'])) {
 
         //this is generated after data inserted into bookings table, easy way, after customer clicked "Hantar"
         $bookingId = $dbh->lastInsertId();
-        //to check whether last bookingId is correct
+        // to check whether last bookingId is correct
         // if ($bookingId) {
         //     echo "Last Inserted Booking ID: " . $bookingId;
         // } else {

@@ -80,7 +80,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 				</div>
 				<!--heder end here-->
 				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="index.html">Home</a><i class="fa fa-angle-right"></i>Kemaskini
+					<li class="breadcrumb-item"><a href="index.php">Home</a><i class="fa fa-angle-right"></i>Kemaskini
 						maklumat aktiviti</li>
 				</ol>
 				<!--grid-->

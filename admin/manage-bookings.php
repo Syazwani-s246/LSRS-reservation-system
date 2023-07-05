@@ -115,7 +115,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 							<div class="succWrap"><strong>BERJAYA</strong>:
 							<?php echo htmlentities($msg); ?>
 							</div>
-					<?php } ?>
+						<?php } ?>
 					<div class="agile-tables">
 						<div class="w3l-table-info">
 							<h2>Urus tempahan</h2>
@@ -125,11 +125,12 @@ if (strlen($_SESSION['alogin']) == 0) {
 										<th>ID Tempahan</th>
 										<th>Nama penuh</th>
 										<!-- <th>Mobile No.</th> -->
-										<th>Emel</th>
+										<th>Nombor telefon</th>
 										<!-- <th>RegDate </th> -->
 										<th>Tarikh</th>
 										<th>Slot masa</th>
-										<th>Bilangan peserta</th>
+										<th>Aktiviti</th>
+										<!-- <th>Bilangan peserta</th> -->
 										<!-- <th>Catatan pelanggan</th> -->
 										<th>Status </th>
 
@@ -137,9 +138,12 @@ if (strlen($_SESSION['alogin']) == 0) {
 								</thead>
 								<tbody>
 									<?php
-									$sql = "SELECT b.bookingId, b.timeSlot, b.bookDate, b.noOfParticipant, b.comment, b.status, c.fullName, c.emailId
-							FROM bookings b
-							JOIN customers c ON b.customerId = c.id";
+									$sql = "SELECT bookings.*, customers.*, activity.*
+									FROM bookings
+									JOIN customers ON bookings.customerId = customers.id
+									JOIN activity ON bookings.activityId = activity.activityId";
+
+
 									$query = $dbh->prepare($sql);
 									$query->execute();
 									$results = $query->fetchAll(PDO::FETCH_OBJ);
@@ -149,13 +153,21 @@ if (strlen($_SESSION['alogin']) == 0) {
 											$status = ($result->status == 1) ? 'Telah dibayar' : 'Belum dibayar';
 											?>
 											<tr>
-												<td><a
-														href="booking-details.php?bookingId=<?php echo htmlentities($result->bookingId); ?>">#BK-<?php echo htmlentities($result->bookingId); ?></a></td>
+												<td>
+													<a href="#" data-toggle="modal"
+														data-target="#bookingDetailsModal<?php echo htmlentities($result->bookingId); ?>">
+														#BK-<?php echo htmlentities($result->bookingId); ?>
+													</a>
+												</td>
 												<td>
 													<?php echo htmlentities($result->fullName); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->emailId); ?>
+													<?php
+													$mobileNumber = htmlentities($result->mobileNumber);
+													$url = "https://api.whatsapp.com/send?phone=" . $mobileNumber;
+													?>
+													<a href="<?php echo $url; ?>" target="_blank"><?php echo $mobileNumber; ?></a>
 												</td>
 												<td>
 													<?php echo htmlentities($result->bookDate); ?>
@@ -164,9 +176,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 													<?php echo htmlentities($result->timeSlot); ?>
 												</td>
 												<td>
-													<?php echo htmlentities($result->noOfParticipant); ?>
+													<?php echo htmlentities($result->activityName); ?>
 												</td>
-												
+
 												<td>
 													<?php echo $status; ?>
 												</td>
@@ -174,20 +186,87 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 											</tr>
 
+											<!-- Modal -->
+											<div class="modal fade"
+												id="bookingDetailsModal<?php echo htmlentities($result->bookingId); ?>"
+												tabindex="-1" role="dialog" aria-labelledby="bookingDetailsModalLabel"
+												aria-hidden="true">
+												<div class="modal-dialog" role="document">
+													<div class="modal-content">
+														<div class="modal-header">
+															<h5 class="modal-title" id="bookingDetailsModalLabel">Maklumat tempahan
+															</h5>
+															<button type="button" class="close" data-dismiss="modal"
+																aria-label="close">
+																<span aria-hidden="true">&times;</span>
+															</button>
+														</div>
+														<div class="modal-body">
+															<!-- Add the booking details here -->
+															<p><strong>ID Tempahan:</strong> #BK-
+																<?php echo htmlentities($result->bookingId); ?>
+															</p>
+															<p><strong>Nama penuh:</strong>
+																<?php echo htmlentities($result->fullName); ?>
+															</p>
+															<p><strong>Emel:</strong>
+																<?php echo htmlentities($result->emailId); ?>
+															</p>
+															<p><strong>Nombor telefon:</strong>
+																<?php echo htmlentities($result->mobileNumber); ?>
+															</p>
+															<p><strong>Tarikh:</strong>
+																<?php echo htmlentities($result->bookDate); ?>
+															</p>
+															<p><strong>Aktiviti:</strong>
+																<?php echo htmlentities($result->activityName); ?>
+															</p>
+															<p><strong>Slot masa:</strong>
+																<?php echo htmlentities($result->timeSlot); ?>
+															</p>
+															<p><strong>Tempoh masa aktiviti:</strong>
+																<?php echo htmlentities($result->duration); ?> jam
+															</p>
+															<p><strong>Bilangan peserta:</strong>
+																<?php echo htmlentities($result->noOfParticipant); ?>
+															</p>
+															<p><strong>Catatan pelanggan:</strong>
+																<?php echo htmlentities($result->comment); ?>
+															</p>
+															<p><strong>Status :</strong>
+																<?php echo $status; ?>
+															</p>
+															<!-- Add more booking details as needed -->
+														</div>
+														<div class="modal-footer">
+															<button type="button" class="btn btn-secondary"
+																data-dismiss="modal">Tutup</button>
+														</div>
+													</div>
+												</div>
+											</div>
+
 											<?php $cnt++;
 										}
 									} else { ?>
-										<tr>
-											<td colspan="9">Tiada tempahan yang dijumpai.</td>
-										</tr>
-									<?php } ?>
+									<tr>
+										<td colspan="9">Tiada tempahan yang dijumpai.</td>
+									</tr>
+								<?php } ?>
 								</tbody>
 							</table>
+
+
 						</div>
 						</table>
 
 
 					</div>
+
+
+
+
+
 					<!-- script-for sticky-nav -->
 					<script>						$(document).ready(function () {
 							var navoffeset = $(".header-main").offset().top; $(window).scroll(function () { var scrollpos = $(window).scrollTop(); if (scrollpos >= navoffeset) { $(".header-main").addClass("fixed"); } else { $(".header-main").removeClass("fixed"); } });

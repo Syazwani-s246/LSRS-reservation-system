@@ -131,7 +131,7 @@ if (strlen($_SESSION['login']) == 0) {
 						} ?>
 
 						<p style="width: 350px;">
-							<button type="submit" name="submit6" class="btn-primary btn">Update</button>
+							<button type="submit" name="submit6" class="btn-primary btn">Kemaskini</button>
 						</p>
 					</form>
 

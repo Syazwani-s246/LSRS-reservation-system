@@ -27,7 +27,7 @@ if (isset($_POST['login'])) {
 <html>
 
 <head>
-	<title>Pengurusan</title>
+	<title>Staf | Log masuk</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script

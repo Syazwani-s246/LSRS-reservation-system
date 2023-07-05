@@ -13,7 +13,7 @@ if (strlen($_SESSION['alogin']) == 0) {
    <html>
 
    <head>
-      <title> LSRS | Admin</title>
+      <title> Admin</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
       <script type="application/x-javascript"> addEventListener("load", function() 
@@ -112,7 +112,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                         </div>
                      </div>
                   </div>
-                  <div class="col-md-3 four-grid">
+                  <!-- <div class="col-md-3 four-grid">
                      <div class="four-w3ls">
                         <div class="icon">
                            <i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i>
@@ -130,7 +130,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                            </h4>
                         </div>
                      </div>
-                  </div>
+                  </div> -->
                   <div class="col-md-3 four-grid">
                      <div class="four-wthree">
                         <div class="icon">

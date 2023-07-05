@@ -13,13 +13,6 @@ if (isset($_SESSION['bookingDetails'])) {
         $activityId = $_GET['activityId'];
         $customerId = $_GET['customerId'];
 
-        //to test if bookingId exists or not
-        //if (empty($bookingId)) {
-        // Redirect or display an error message
-        //    echo 'NO BOOKING ID ';
-        //    exit();
-        //}
-
         // Retrieve booking details from session
         $noOfParticipant = $bookingDetails['noOfParticipant'];
         $timeSlot = $bookingDetails['timeSlot'];
@@ -42,14 +35,13 @@ if (isset($_SESSION['bookingDetails'])) {
         $customerQuery->execute();
         $customerRow = $customerQuery->fetch(PDO::FETCH_ASSOC);
         $fullName = $customerRow ? $customerRow['fullName'] : "Unknown Customer";
-              
+
         // Update payment details and status in the bookings
         $updatePaymentSql = "UPDATE bookings SET paymentId = :paymentId, status = CASE WHEN paymentId IS NULL THEN 0 ELSE 1 END WHERE bookingId = :bookingId";
         $updatePaymentQuery = $dbh->prepare($updatePaymentSql);
         $updatePaymentQuery->bindParam(':paymentId', $bookingDetails['paymentId'], PDO::PARAM_INT);
         $updatePaymentQuery->bindParam(':bookingId', $bookingId, PDO::PARAM_INT); // Use the correct $bookingId
         $updatePaymentQuery->execute();
-
     } else {
         header("Location: index.php"); // Redirect to the home page if booking details are not available
         exit();
@@ -59,50 +51,83 @@ if (isset($_SESSION['bookingDetails'])) {
     exit();
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['upload'])) {
         $paymentReceipt = $_FILES['paymentReceipt']['name'];
         $tempPaymentReceipt = $_FILES['paymentReceipt']['tmp_name'];
 
-        // Move the uploaded file to a desired location
-        $destination = "/payment" . $paymentReceipt;
-        move_uploaded_file($tempPaymentReceipt, $destination);
+        // Validate the file type
+        $allowedTypes = array('image/png', 'image/jpeg', 'application/pdf');
 
-        // Insert payment details into the payments table
-        $insertPaymentSql = "INSERT INTO payments (bookingId, amountPaid, paymentReceipt) VALUES (:bookingId, :amountPaid, :paymentReceipt)";
-        $insertPaymentQuery = $dbh->prepare($insertPaymentSql);
-        $insertPaymentQuery->bindParam(':bookingId', $bookingId, PDO::PARAM_INT); // Use the correct $bookingId
-        $insertPaymentQuery->bindParam(':amountPaid', $totalPayment, PDO::PARAM_STR);
-        $insertPaymentQuery->bindParam(':paymentReceipt', $paymentReceipt, PDO::PARAM_STR);
-        $insertPaymentQuery->execute();
+        if (in_array($_FILES['paymentReceipt']['type'], $allowedTypes)) {
+            // Move the uploaded file to a desired location
+            $paymentFileName = $bookingId . "_receipt." . pathinfo($_FILES['paymentReceipt']['name'], PATHINFO_EXTENSION);
+            $paymentFilePath = "payment/" . $paymentFileName;
+            move_uploaded_file($tempPaymentReceipt, $paymentFilePath);
 
-         // Check if the payment was successfully inserted
-         $paymentId = $dbh->lastInsertId(); // Get the inserted payment ID
+            // Insert payment details into the payments table
+            $insertPaymentSql = "INSERT INTO payments (bookingId, amountPaid, paymentReceipt) VALUES (:bookingId, :amountPaid, :paymentReceipt)";
+            $insertPaymentQuery = $dbh->prepare($insertPaymentSql);
+            $insertPaymentQuery->bindParam(':bookingId', $bookingId, PDO::PARAM_INT); // Use the correct $bookingId
+            $insertPaymentQuery->bindParam(':amountPaid', $totalPayment, PDO::PARAM_STR);
+            $insertPaymentQuery->bindParam(':paymentReceipt', $paymentFileName, PDO::PARAM_STR);
+            $insertPaymentQuery->execute();
+
+            // Check if the payment was successfully inserted
+            $paymentId = $dbh->lastInsertId(); // Get the inserted payment ID
+
+            if ($paymentId) {
+                // Update payment details and status in the bookings
+                $updatePaymentSql = "UPDATE bookings SET paymentId = :paymentId, status = CASE WHEN paymentId IS NULL THEN 0 ELSE 1 END WHERE bookingId = :bookingId";
+                $updatePaymentQuery = $dbh->prepare($updatePaymentSql);
+                $updatePaymentQuery->bindParam(':paymentId', $paymentId, PDO::PARAM_INT);
+                $updatePaymentQuery->bindParam(':bookingId', $bookingId, PDO::PARAM_INT); // Use the correct $bookingId
+                $updatePaymentQuery->execute();
+
+                // Prepare the message with payment and booking IDs
+                $messageSQL = "SELECT payments.paymentId, payments.amountPaid, customers.fullName, bookings.bookingId 
+FROM payments
+INNER JOIN bookings ON payments.bookingId = bookings.bookingId
+INNER JOIN customers ON bookings.customerId = customers.id
+WHERE payments.bookingId = :bookingId";
+                $messageQuery = $dbh->prepare($messageSQL);
+                $messageQuery->bindParam(':bookingId', $bookingId, PDO::PARAM_INT);
+                $messageQuery->execute();
+                $messageRow = $messageQuery->fetch(PDO::FETCH_ASSOC);
+
+                $paymentId = $messageRow ? $messageRow['paymentId'] : "Unknown Payment";
+                $fullName = $messageRow ? $messageRow['fullName'] : "Unknown Customer";
+                $bookingId = $messageRow ? $messageRow['bookingId'] : "Unknown Booking";
+                $amountPaid = $messageRow ? $messageRow['amountPaid'] : "Unknown Amount";
+
+                $message = "Bayaran telah dibuat!\n"
+                    . "Nama: $fullName\n"
+                    . "ID tempahan: BK-$bookingId\n"
+                    . "ID bayaran: B-$paymentId\n"
+                    . "Jumlah dibayar: RM $amountPaid\n";
 
 
-         if ($paymentId) {
-            // Update payment details and status in the bookings
-            $updatePaymentSql = "UPDATE bookings SET paymentId = :paymentId, status = CASE WHEN paymentId IS NULL THEN 0 ELSE 1 END WHERE bookingId = :bookingId";
-            $updatePaymentQuery = $dbh->prepare($updatePaymentSql);
-            $updatePaymentQuery->bindParam(':paymentId', $paymentId, PDO::PARAM_INT);
-            $updatePaymentQuery->bindParam(':bookingId', $bookingId, PDO::PARAM_INT); // Use the correct $bookingId
-            $updatePaymentQuery->execute();
 
-            echo "<script>
-            if (confirm('Bukti bayaran telah dihantar! Adakah anda memerlukan resit?')) {
-                window.location.href = 'receipt.php'; // Redirect to receipt.php if user selects 'Yes'
-            } else {
-                window.location.href = 'book-history.php'; // Redirect to book-history.php if user selects 'No'
-            }
-            </script>";
+                // Redirect to the WhatsApp API with the predefined message
+                $whatsappURL = "https://api.whatsapp.com/send?phone=+60199438979&text=" . urlencode($message);
+                echo "<script>
+        if (confirm('Bukti bayaran telah dihantar! Sila klik OK untuk menghantar bukti ke Lambo Sari')) {
+            window.location.href = '$whatsappURL'; // Redirect to WhatsApp API with the predefined message
         } else {
-            echo "Error: Failed to insert payment details.";
+            window.location.href = 'book-history.php'; // Redirect to book-history.php if user selects 'No'
+        }
+    </script>";
+            } else {
+                echo "Ralat : Maklumat bayaran tidak dapat dihantar. Sila cuba lagi.";
+            }
+        } else {
+            echo "Ralat : Hanya PNG, JPEG, dan PDF dibenarkan";
         }
     }
 }
-
 ?>
+
+
 
 <!DOCTYPE HTML>
 <html>
@@ -139,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h3><strong>Id tempahan: BK -
                                 <?php echo htmlentities($bookingId); ?>
                             </strong></h3>
+                            
                         <p><strong>Aktiviti:</strong>
                             <?php echo htmlentities($activityName); ?>
                         </p>
@@ -209,7 +235,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group">
                     <label for="paymentReceipt">Sila masukkan bukti pembayaran:</label>
-                    <input type="file" name="paymentReceipt" id="paymentReceipt" class="form-control" required>
+                    <input type="file" name="paymentReceipt" id="paymentReceipt" accept=".png, .jpeg, .jpg, .pdf"
+                        class="form-control" required>
                 </div>
                 <div class="form-group">
                     <button type="submit" name="upload" class="btn btn-primary">Hantar</button>

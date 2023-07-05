@@ -55,10 +55,10 @@
 
 
 			<!-- <li><a href="manageissues.php"><i class="fa fa-table"></i>  <span>Urus isu</span><div class="clearfix"></div></a></li> -->
-			<li><a href="manage-enquires.php"><i class="fa fa-file-text-o" aria-hidden="true"></i> <span>Urus
+			<!-- <li><a href="manage-enquires.php"><i class="fa fa-file-text-o" aria-hidden="true"></i> <span>Urus
 						pertanyaan</span>
 					<div class="clearfix"></div>
-				</a></li>
+				</a></li> -->
 
 				<li><a href="report.php"><i class="fa fa-file-text-o" aria-hidden="true"></i> <span>Laporan</span>
 					<div class="clearfix"></div>
