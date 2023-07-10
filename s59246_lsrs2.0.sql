@@ -83,7 +83,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `name`, `userName`, `password`, `updationDate`) VALUES
-(1, 'Sarinah Said', 'admin1', 'admin', NULL);
+(1, 'Puan A', 'admin1', 'admin', NULL);
 
 -- --------------------------------------------------------
 
@@ -136,12 +136,12 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`id`, `fullName`, `mobileNumber`, `emailId`, `password`, `regDate`, `updationDate`) VALUES
-(1, 'Amira Adnan', '0139059827', 'amira@gmail.com', 'amira', '2023-05-30 19:42:05', '2023-06-07 01:58:50'),
-(2, 'SYUKRIAH ADILIN BINTI YUSOF', '0139217101', 'syukriah@gmail.com', 'syukriah', '2023-06-07 01:56:03', NULL),
-(3, 'ZAMRI BIN MOHAMAD', '0192714788', 'zamri@gmail.com', 'zamri', '2023-06-07 01:56:42', NULL),
-(4, 'PERSATUAN WANITA NEGERI SEMBILAN', '0143205134', 'unita@gmail.com', 'unita', '2023-06-07 01:58:12', NULL),
-(5, 'GHAZALI MOHAMAD', '0134001410', 'ghazali@gmail.com', 'ghazali', '2023-06-07 01:58:43', NULL),
-(6, 'SITI NUR ROSMANI ', '014512878', 'rosmani@gmail.com', 'rosmani', '2023-06-07 01:59:26', NULL);
+(1, 'Amira Adnan', '012345678', 'amira@gmail.com', 'amira', '2023-05-30 19:42:05', '2023-06-07 01:58:50'),
+(2, 'SYUKRIAH ADILIN BINTI YUSOF', '012345678', 'syukriah@gmail.com', 'syukriah', '2023-06-07 01:56:03', NULL),
+(3, 'ZAMRI BIN MOHAMAD', '012345678', 'zamri@gmail.com', 'zamri', '2023-06-07 01:56:42', NULL),
+(4, 'PERSATUAN WANITA NEGERI SEMBILAN', '012345678', 'unita@gmail.com', 'unita', '2023-06-07 01:58:12', NULL),
+(5, 'GHAZALI MOHAMAD', '012345678', 'ghazali@gmail.com', 'ghazali', '2023-06-07 01:58:43', NULL),
+(6, 'SITI NUR ROSMANI ', '012345678', 'rosmani@gmail.com', 'rosmani', '2023-06-07 01:59:26', NULL);
 
 -- --------------------------------------------------------
 
@@ -205,7 +205,7 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`id`, `fullName`, `phoneNumber`, `role`, `username`, `password`) VALUES
-(1, 'Iman', '0139059827', 'Staff1', 'S-Iman', 'Staf1'),
+(1, 'Iman', '012345678', 'Staff1', 'S-Iman', 'Staf1'),
 (2, 'aa', 'aa', 'aaaa', 'staff2', 'staff2');
 
 -- --------------------------------------------------------
