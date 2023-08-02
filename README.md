@@ -1,4 +1,4 @@
-# LSRS Reservation System
+# Reservation System
 
 This project is my final year project for a reservation system for Lambo Sari, an interactive art center located in Kuala Terengganu. It is currently still in development.
 
